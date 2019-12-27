@@ -18,6 +18,11 @@ export default styled(Hero)`
   background-size: cover;
   opacity: 1 !important;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-around;
   align-items: center;
+
+  @media screen and (min-width: 800px) {
+    flex-direction: row;
+  }
 `

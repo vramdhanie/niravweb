@@ -4,9 +4,9 @@
   --primary: #262626;
   --primaryLight: #404040;
   --primaryDark: #0d0d0d;
-  --secondary: #a6a6a6;
-  --secondaryLight: #d9d9d9;
-  --secondaryDark: #b6b6b6;
+  --secondary: rgba(2, 119, 189, 0.8);
+  --secondaryLight: rgba(2, 119, 189, 0.4);
+  --secondaryDark: rgba(2, 119, 189, 1);
   --primaryText: #ffffff;
   --secondaryText: #000000;
   --mainTransition: all 0.3s linear;

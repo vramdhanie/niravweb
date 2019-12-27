@@ -17,7 +17,7 @@ const IndexPage = ({ data }) => (
       <Img fixed={data.niravLogo.childImageSharp.fixed} />
       <Banner title="Nirav Draws" info="Drawings, comics, games">
         <AniLink fade to="/articles" className="btn-white">
-          explore articles
+          explore drawings
         </AniLink>
       </Banner>
     </Hero>
@@ -32,7 +32,7 @@ export default IndexPage
 
 export const query = graphql`
   query {
-    homeBg: file(relativePath: { eq: "home_bg.jpg" }) {
+    homeBg: file(relativePath: { eq: "nirav_01.png" }) {
       childImageSharp {
         fluid(quality: 90, maxWidth: 4160) {
           ...GatsbyImageSharpFluid_withWebp
