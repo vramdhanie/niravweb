@@ -2,11 +2,11 @@ import React from "react"
 import styled from "styled-components"
 import Image from "gatsby-image"
 import { Link } from "gatsby"
-import { FaCircle } from 'react-icons/fa'
+import { FaCircle } from "react-icons/fa"
 
 const ArticleCard = ({ className, article, excerpt }) => {
   const { title, date, author, slug } = article
-  const img = article.image.childImageSharp.fluid
+  const img = article.thumb.childImageSharp.fluid
   return (
     <article className={className}>
       <div className="image">
@@ -16,7 +16,8 @@ const ArticleCard = ({ className, article, excerpt }) => {
         <div>
           <h2>{title}</h2>
           <h6>
-            <span>by {author}</span> <FaCircle className="dot" /> <span>{date}</span>
+            <span>by {author}</span> <FaCircle className="dot" />{" "}
+            <span>{date}</span>
           </h6>
           <p>{excerpt}</p>
           <Link to={slug} className="link">
