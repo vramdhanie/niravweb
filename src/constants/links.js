@@ -4,8 +4,8 @@ export default [
     text: "home",
   },
   {
-    path: "/articles",
-    text: "articles",
+    path: "/drawings",
+    text: "drawings",
   },
   {
     path: "/contact",

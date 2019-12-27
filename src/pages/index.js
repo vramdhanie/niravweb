@@ -16,7 +16,7 @@ const IndexPage = ({ data }) => (
     <Hero home="true" img={data.homeBg.childImageSharp.fluid}>
       <Img fixed={data.niravLogo.childImageSharp.fixed} />
       <Banner title="Nirav Draws" info="Drawings, comics, games">
-        <AniLink fade to="/articles" className="btn-white">
+        <AniLink fade to="/drawings" className="btn-white">
           explore drawings
         </AniLink>
       </Banner>

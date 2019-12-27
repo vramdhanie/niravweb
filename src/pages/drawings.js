@@ -5,8 +5,7 @@ import Hero from "../components/hero"
 import Banner from "../components/banner"
 import ArticleList from "../components/articleList"
 
-const Article = ({ data }) => {
-  console.log(data)
+const Drawing = ({ data }) => {
   const {
     mdx: { edges: articles },
     articleBg,
@@ -16,7 +15,7 @@ const Article = ({ data }) => {
     <Layout>
       <Hero img={articleBg.childImageSharp.fluid}>
         <Banner>
-          <h1>Articles</h1>
+          <h1>Drawings</h1>
         </Banner>
       </Hero>
       <ArticleList articles={articles} />
@@ -24,7 +23,7 @@ const Article = ({ data }) => {
   )
 }
 
-export default Article
+export default Drawing
 
 export const query = graphql`
   query {

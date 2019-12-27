@@ -19,8 +19,8 @@ const ArticleTemplate = ({ data, className }) => {
         </Banner>
       </Hero>
       <section className={className}>
-        <Link className="link" to="/articles">
-          Back to all Articles
+        <Link className="link" to="/drawings">
+          Back to all Drawings
         </Link>
         <div className="content">
           <MDXRenderer>{body}</MDXRenderer>
