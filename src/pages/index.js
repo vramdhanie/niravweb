@@ -8,15 +8,14 @@ import Featured from "../components/home/featured"
 import Title from "../components/title"
 import AniLink from "gatsby-plugin-transition-link/AniLink"
 import { graphql } from "gatsby"
+import Img from "gatsby-image"
 
 const IndexPage = ({ data }) => (
   <Layout>
     <SEO title="Home" />
     <Hero home="true" img={data.homeBg.childImageSharp.fluid}>
-      <Banner
-        title="Gatsby Starter Vincent"
-        info="Based on Gatsby Default Starter"
-      >
+      <Img fixed={data.niravLogo.childImageSharp.fixed} />
+      <Banner title="Nirav Draws" info="Drawings, comics, games">
         <AniLink fade to="/articles" className="btn-white">
           explore articles
         </AniLink>
@@ -37,6 +36,13 @@ export const query = graphql`
       childImageSharp {
         fluid(quality: 90, maxWidth: 4160) {
           ...GatsbyImageSharpFluid_withWebp
+        }
+      }
+    }
+    niravLogo: file(relativePath: { eq: "nirav_logo.png" }) {
+      childImageSharp {
+        fixed(width: 400) {
+          ...GatsbyImageSharpFixed_withWebp
         }
       }
     }

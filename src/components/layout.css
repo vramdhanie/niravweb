@@ -1,12 +1,12 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap");
 
 :root {
-  --primary: #0277bd;
-  --primaryLight: #58a5f0;
-  --primaryDark: #004c8c;
-  --secondary: #fdd835;
-  --secondaryLight: #ffff6b;
-  --secondaryDark: #c6a700;
+  --primary: #262626;
+  --primaryLight: #404040;
+  --primaryDark: #0d0d0d;
+  --secondary: #a6a6a6;
+  --secondaryLight: #d9d9d9;
+  --secondaryDark: #b6b6b6;
   --primaryText: #ffffff;
   --secondaryText: #000000;
   --mainTransition: all 0.3s linear;

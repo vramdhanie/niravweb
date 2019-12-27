@@ -1,7 +1,7 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Starter Vincent`,
-    description: `This bare bones starter comes pre configured with MDX and styled components`,
+    title: `Nirav's Website`,
+    description: `This is the main website for Nirav`,
     author: `@vramdhanie`,
   },
   plugins: [
