@@ -41,7 +41,7 @@ export const query = graphql`
     }
     niravLogo: file(relativePath: { eq: "nirav_logo.png" }) {
       childImageSharp {
-        fixed(width: 400) {
+        fixed(width: 300) {
           ...GatsbyImageSharpFixed_withWebp
         }
       }
