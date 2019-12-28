@@ -38,6 +38,19 @@ export default styled(ArticleList)`
   .center {
     width: 85vw;
     margin: 0 auto;
-    max-width: 750px;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  @media screen and (min-width: 600px) {
+    .center {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .center {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
   }
 `
