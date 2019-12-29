@@ -40,6 +40,7 @@ export default styled(ArticleList)`
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
+    grid-column-gap: 10px;
   }
 
   @media screen and (min-width: 600px) {

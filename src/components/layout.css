@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap");
 
+* {
+  box-sizing: border-box;
+}
+
 :root {
   --primary: #262626;
   --primaryLight: #404040;

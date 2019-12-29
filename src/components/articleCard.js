@@ -41,7 +41,7 @@ export default styled(ArticleCard)`
     padding: 1rem 0;
     position: absolute;
     bottom: 0;
-    width: 100%;
+    width: 90%;
     background: rgba(255, 255, 255, 0.5);
   }
   .info h2 {
