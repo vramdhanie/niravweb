@@ -45,13 +45,6 @@ export const query = graphql`
             }
           }
         }
-        thumb {
-          childImageSharp {
-            fluid {
-              ...GatsbyImageSharpFluid_withWebp
-            }
-          }
-        }
       }
       body
     }
