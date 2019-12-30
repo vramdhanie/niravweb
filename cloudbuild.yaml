@@ -11,3 +11,4 @@ steps:
   - name: "node:10.15.1"
     entrypoint: "./node_modules/.bin/firebase"
     args: ["deploy", "--project", "$PROJECT_ID", "--token", "$_TOKEN"]
+timeout: 900s
