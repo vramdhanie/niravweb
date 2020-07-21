@@ -17,7 +17,7 @@ const ArticleCard = ({ className, article, excerpt }) => {
           <h6>
             <span>{date}</span>
           </h6>
-          <Link to={slug} className="link">
+          <Link to={"/" + slug} className="link">
             read more
           </Link>
         </div>
