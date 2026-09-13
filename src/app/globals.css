@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  /* Palette ported from the original Gatsby site (layout.css) */
+  --primary: #262626;
+  --primary-light: #404040;
+  --primary-dark: #0d0d0d;
+  --secondary: #0277bd;
+  --secondary-light: rgba(2, 119, 189, 0.4);
+  --secondary-dark: rgba(2, 119, 189, 1);
+  --text-on-dark: #ffffff;
+  --main-white: #ffffff;
+  --main-black: #000000;
+  --main-spacing: 4px;
+  --home-start: rgba(2, 119, 189, 0.7);
+  --home-end: rgba(0, 0, 0, 0.7);
+  --transition: all 0.3s linear;
+
+  --background: var(--main-white);
+  --foreground: var(--primary);
+}
+
+@theme inline {
+  --font-sans: var(--font-roboto);
+}
+
+html {
+  box-sizing: border-box;
+}
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-roboto), system-ui, Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styling for MDX drawing content */
+.drawing-content h2 {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  color: var(--primary-dark);
+  letter-spacing: 2px;
+}
+.drawing-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+.drawing-content img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}

@@ -1,0 +1,39 @@
+name: Deploy to Live Site
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_live_website:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Setup pnpm first
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.15.0'  # Match your package.json packageManager
+
+      # Setup Node.js with pnpm caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.0'  # LTS version that supports React 19
+          cache: 'pnpm'  # Enable pnpm caching
+
+      # Install dependencies and build
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm run build:ci
+
+      # Deploy to Firebase
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_NIRAVWEB }}'
+          projectId: ${{ secrets.PROJECT_ID }}
+          channelId: live
