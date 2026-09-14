@@ -15,7 +15,7 @@ function Logo() {
         <div className="text-3xl font-normal">
           Nirav<span className="text-[var(--secondary)]">Draws</span>
         </div>
-        <div className="text-right text-base font-light">Drawings, Comics, Games</div>
+        <div className="text-right text-base font-light">Physics, Mathematics, Drawings</div>
       </div>
     </div>
   )

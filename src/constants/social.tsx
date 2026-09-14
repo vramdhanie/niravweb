@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { GithubIcon, StackOverflowIcon, TwitterIcon } from '@/components/icons'
+import { GithubIcon } from '@/components/icons'
 
 export interface SocialLink {
   label: string
@@ -9,18 +9,8 @@ export interface SocialLink {
 
 const social: SocialLink[] = [
   {
-    label: 'Stack Overflow',
-    url: 'https://stackoverflow.com/users/27439/vincent-ramdhanie?tab=profile',
-    icon: <StackOverflowIcon />,
-  },
-  {
-    label: 'Twitter',
-    url: 'https://twitter.com/vramdhanie',
-    icon: <TwitterIcon />,
-  },
-  {
     label: 'GitHub',
-    url: 'https://github.com/vramdhanie',
+    url: 'https://github.com/KnobNA',
     icon: <GithubIcon />,
   },
 ]

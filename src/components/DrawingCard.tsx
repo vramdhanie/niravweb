@@ -31,7 +31,7 @@ export default function DrawingCard({ drawing }: { drawing: Drawing }) {
           {formatDate(drawing.date)}
         </h6>
         <Link
-          href={`/drawings/${drawing.slug}`}
+          href={`/draws/drawings/${drawing.slug}`}
           className="inline-block border border-[var(--primary-dark)] px-2 py-1 capitalize text-[var(--primary-dark)] no-underline transition-all duration-300 hover:bg-[var(--primary-dark)] hover:text-white"
         >
           read more

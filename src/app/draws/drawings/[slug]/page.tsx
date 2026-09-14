@@ -59,7 +59,7 @@ export default async function DrawingPage({
         </div>
 
         <Link
-          href="/drawings"
+          href="/draws/drawings"
           className="mt-10 inline-flex items-center gap-2 border border-[var(--primary-dark)] px-3 py-1.5 capitalize text-[var(--primary-dark)] no-underline transition-all duration-300 hover:bg-[var(--primary-dark)] hover:text-white"
         >
           <ArrowLeft size={16} />

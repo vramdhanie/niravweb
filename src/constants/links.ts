@@ -5,7 +5,7 @@ export interface NavLink {
 
 const links: NavLink[] = [
   { path: '/', text: 'home' },
-  { path: '/drawings', text: 'drawings' },
+  { path: '/draws', text: 'drawings' },
 ]
 
 export default links

@@ -15,21 +15,20 @@ export const metadata: Metadata = {
     default: 'Nirav Draws',
     template: '%s | Nirav Draws',
   },
-  description: 'Drawings, comics and games by Nirav Ramdhanie.',
+  description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
   icons: {
     icon: '/icon.png',
   },
   openGraph: {
     type: 'website',
     title: 'Nirav Draws',
-    description: 'Drawings, comics and games by Nirav Ramdhanie.',
+    description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
     siteName: 'Nirav Draws',
   },
   twitter: {
     card: 'summary',
-    creator: '@vramdhanie',
     title: 'Nirav Draws',
-    description: 'Drawings, comics and games by Nirav Ramdhanie.',
+    description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
   },
 }
 
