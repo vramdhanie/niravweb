@@ -159,7 +159,7 @@ export default function HomePage() {
             Gallery
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-center text-[var(--primary-light)]">
-            Renders and screenshots will appear here.
+            Renders and screenshots.
           </p>
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

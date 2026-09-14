@@ -32,9 +32,15 @@ export default function Footer() {
         ))}
       </div>
 
-      <div className="mt-4 flex justify-between text-[0.6rem] text-[var(--main-white)]">
-        <div>© {new Date().getFullYear()} Nirav Ramdhanie</div>
-        <div>
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-2 text-[0.6rem] text-[var(--main-white)]">
+        <div className="min-w-0 flex-1 pr-4">
+          © {new Date().getFullYear()} Nirav Ramdhanie{' '}
+          <span className="text-white/40">
+            · 3rd, 4th, 5th, 6th derivatives of position with respect to time are jerk, snap,
+            crackle and pop respectively.
+          </span>
+        </div>
+        <div className="shrink-0">
           Built with{' '}
           <a
             href="https://nextjs.org"
