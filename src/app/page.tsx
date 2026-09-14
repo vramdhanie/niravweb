@@ -30,6 +30,10 @@ const GALLERY = [
     src: '/images/nbody/3d_render.jpg',
     alt: '3D render of the collision basins — a lattice cube of starting points, each coloured by the planet its asteroid hits.',
   },
+  {
+    src: '/images/nbody/equilateral_basins.jpg',
+    alt: '2D slice of the collision basins for three equal masses on an equilateral triangle — each region coloured by which planet an asteroid launched from that point reaches; white rings mark the planets.',
+  },
 ]
 
 const FEATURES = [
