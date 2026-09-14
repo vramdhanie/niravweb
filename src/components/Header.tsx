@@ -10,10 +10,10 @@ import social from '@/constants/social'
 function Logo() {
   return (
     <div className="flex items-center text-[var(--primary-light)]">
-      <Image src="/images/logo_icon.png" alt="Nirav Draws logo" width={64} height={59} priority />
+      <Image src="/images/logo_icon.png" alt="NiravThinks logo" width={64} height={59} priority />
       <div className="ml-1 leading-tight">
         <div className="text-3xl font-normal">
-          Nirav<span className="text-[var(--secondary)]">Draws</span>
+          Nirav<span className="text-[var(--secondary)]">Thinks</span>
         </div>
         <div className="text-right text-base font-light">Physics, Mathematics, Drawings</div>
       </div>

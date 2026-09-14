@@ -33,7 +33,7 @@ export default function Footer() {
       </div>
 
       <div className="mt-4 flex justify-between text-[0.6rem] text-[var(--main-white)]">
-        <div>© {new Date().getFullYear()} Vincent Ramdhanie</div>
+        <div>© {new Date().getFullYear()} Nirav Ramdhanie</div>
         <div>
           Built with{' '}
           <a
