@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import {
   Github,
   Orbit,
@@ -22,6 +23,14 @@ const PROJECT = {
   license: 'MIT',
   tech: ['Python 3.10+', 'CuPy · CUDA GPU', 'Manim · 2D', 'VisPy · 3D', 'NumPy', 'Pillow'],
 }
+
+// Renders / screenshots. More to come from Nirav.
+const GALLERY = [
+  {
+    src: '/images/nbody/3d_render.jpg',
+    alt: '3D render of the collision basins — a lattice cube of starting points, each coloured by the planet its asteroid hits.',
+  },
+]
 
 const FEATURES = [
   {
@@ -152,11 +161,25 @@ export default function HomePage() {
             Renders and screenshots will appear here.
           </p>
 
-          {/* TODO: replace these placeholder tiles with real render/screenshot images. */}
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[0, 1, 2].map((i) => (
+            {GALLERY.map((img) => (
               <div
-                key={i}
+                key={img.src}
+                className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[color:rgba(0,0,0,0.08)] bg-black"
+              >
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
+            ))}
+            {/* TODO: add more renders/screenshots as Nirav provides them. */}
+            {Array.from({ length: Math.max(0, 3 - GALLERY.length) }).map((_, i) => (
+              <div
+                key={`placeholder-${i}`}
                 className="flex aspect-[4/3] items-center justify-center rounded-xl border border-[color:rgba(0,0,0,0.08)] bg-[color:rgba(0,0,0,0.03)]"
               >
                 <div className="text-center text-[var(--primary-light)]">
