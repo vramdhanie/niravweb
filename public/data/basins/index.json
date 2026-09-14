@@ -1,0 +1,11 @@
+{
+  "models": [
+    {
+      "key": "newtonian",
+      "name": "Newtonian",
+      "file": "newtonian.bin",
+      "meta": "newtonian.json",
+      "relativistic": false
+    }
+  ]
+}

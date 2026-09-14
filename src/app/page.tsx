@@ -10,6 +10,7 @@ import {
   ImageIcon,
   ExternalLink,
 } from 'lucide-react'
+import VisualizerSection from '@/components/basins/VisualizerSection'
 
 // Featured project — content drawn from the project README.
 // More detail, screenshots, and the live visualizer will be added later.
@@ -141,16 +142,12 @@ export default function HomePage() {
             Interactive visualizer
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-[var(--primary-light)]">
-            A live, in-browser explorer of the collision basins is coming soon.
+            Explore the 4-D collision basins live — rotate the cube, slide through the fourth
+            dimension, and isolate coordinate planes, right in the browser.
           </p>
 
-          {/* TODO: mount the live interactive visualizer here once it is ready. */}
-          <div className="mt-8 flex aspect-video w-full items-center justify-center rounded-xl border-2 border-dashed border-[color:rgba(0,0,0,0.15)] bg-white">
-            <div className="text-center text-[var(--primary-light)]">
-              <Sparkles size={32} className="mx-auto mb-3 opacity-50" />
-              <p className="font-medium">Interactive visualizer coming soon</p>
-              <p className="mt-1 text-sm opacity-70">The live basins explorer will render here.</p>
-            </div>
+          <div className="mt-8 text-left">
+            <VisualizerSection />
           </div>
         </div>
       </section>

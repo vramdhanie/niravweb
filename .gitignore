@@ -46,3 +46,6 @@ serviceAccount*.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# n-body basin source npz (large; only emitted public/data artifacts are committed)
+/basins-src/
