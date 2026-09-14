@@ -14,7 +14,7 @@ import {
 // Featured project — content drawn from the project README.
 // More detail, screenshots, and the live visualizer will be added later.
 const PROJECT = {
-  title: 'The Restrictive N-Body Problem',
+  title: 'Mapping Chaotic Gravitational Basins',
   eyebrow: 'Featured project',
   tagline:
     'GPU-accelerated basins of attraction: launch an asteroid from rest at every point in space and colour it by the planet it eventually collides with.',
@@ -60,7 +60,7 @@ const FEATURES = [
 ]
 
 export const metadata: Metadata = {
-  title: { absolute: 'NiravThinks — The Restrictive N-Body Problem' },
+  title: { absolute: 'Mapping Chaotic Gravitational Basins | Snap, Crackle and Pop' },
   description:
     'GPU-accelerated basins of attraction for a restricted n-body problem, by Nirav Ramdhanie.',
 }

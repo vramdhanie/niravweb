@@ -31,7 +31,7 @@ export async function generateMetadata({
   const drawing = getDrawing(slug)
   if (!drawing) return {}
   return {
-    title: drawing.title,
+    title: { absolute: `${drawing.title} | Nirav Draws` },
     description: `${drawing.title} — a drawing by ${drawing.author}.`,
   }
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import Hero from '@/components/Hero'
@@ -5,6 +6,11 @@ import Banner from '@/components/Banner'
 import Title from '@/components/Title'
 import DrawingCard from '@/components/DrawingCard'
 import { getAllDrawings } from '@/lib/drawings'
+
+export const metadata: Metadata = {
+  title: { absolute: 'Nirav Draws' },
+  description: 'Drawings by Nirav Ramdhanie.',
+}
 
 export default function DrawsHomePage() {
   const featured = getAllDrawings().slice(0, 4)

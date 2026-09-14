@@ -5,7 +5,7 @@ import DrawingCard from '@/components/DrawingCard'
 import { getAllDrawings } from '@/lib/drawings'
 
 export const metadata: Metadata = {
-  title: 'Drawings',
+  title: { absolute: 'Drawings | Nirav Draws' },
   description: 'Architectural drawings by Nirav Ramdhanie.',
 }
 

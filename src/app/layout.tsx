@@ -12,8 +12,8 @@ const roboto = Roboto({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Nirav Draws',
-    template: '%s | Nirav Draws',
+    default: 'Snap, Crackle and Pop',
+    template: '%s | Snap, Crackle and Pop',
   },
   description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
   icons: {
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    title: 'Nirav Draws',
+    title: 'Snap, Crackle and Pop',
     description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
-    siteName: 'Nirav Draws',
+    siteName: 'Snap, Crackle and Pop',
   },
   twitter: {
     card: 'summary',
-    title: 'Nirav Draws',
+    title: 'Snap, Crackle and Pop',
     description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
   },
 }

@@ -3,18 +3,33 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { AlignRight } from 'lucide-react'
 import links from '@/constants/links'
 import social from '@/constants/social'
 
-function Logo() {
+function Logo({ isDraws }: { isDraws: boolean }) {
   return (
     <div className="flex items-center text-[var(--primary-light)]">
-      <Image src="/images/logo_icon.png" alt="NiravThinks logo" width={64} height={59} priority />
+      <Image
+        src="/images/logo_icon.png"
+        alt={isDraws ? 'Nirav Draws logo' : 'Snap, Crackle and Pop logo'}
+        width={64}
+        height={59}
+        priority
+      />
       <div className="ml-1 leading-tight">
-        <div className="text-3xl font-normal">
-          Nirav<span className="text-[var(--secondary)]">Thinks</span>
-        </div>
+        {isDraws ? (
+          <div className="text-3xl font-normal">
+            Nirav<span className="text-[var(--secondary)]">Draws</span>
+          </div>
+        ) : (
+          <div className="text-xl font-normal sm:text-2xl">
+            {/* jerk, snap, crackle, pop = 3rd–6th derivatives of position */}
+            <span className="text-[0.6em] opacity-25">jerk, </span>
+            Snap, Crackle and <span className="text-[var(--secondary)]">Pop</span>
+          </div>
+        )}
         <div className="text-right text-base font-light">Physics, Mathematics, Drawings</div>
       </div>
     </div>
@@ -23,14 +38,16 @@ function Logo() {
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
+  const isDraws = pathname?.startsWith('/draws') ?? false
 
   return (
     <nav className="bg-[var(--primary-dark)] sm:px-8">
       <div className="mx-auto flex max-w-[1170px] flex-col lg:flex-row lg:items-center lg:justify-between">
         {/* header row: logo + hamburger */}
         <div className="flex items-center justify-between px-5 py-4">
-          <Link href="/" className="no-underline">
-            <Logo />
+          <Link href={isDraws ? '/draws' : '/'} className="no-underline">
+            <Logo isDraws={isDraws} />
           </Link>
           <button
             type="button"
