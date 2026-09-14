@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import links from '@/constants/links'
 import social from '@/constants/social'
 
@@ -40,26 +41,15 @@ export default function Footer() {
             crackle and pop respectively.
           </span>
         </div>
-        <div className="shrink-0">
-          Built with{' '}
-          <a
-            href="https://nextjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[var(--secondary)] no-underline hover:underline"
-          >
-            Next.js
-          </a>{' '}
-          by{' '}
-          <a
-            href="https://vincentramdhanie.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[var(--secondary)] no-underline hover:underline"
-          >
-            Vincent
-          </a>
-        </div>
+        <a
+          href="https://vincentramdhanie.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Vincent Ramdhanie"
+          className="shrink-0 opacity-70 transition-opacity hover:opacity-100"
+        >
+          <Image src="/images/vr-logo.png" alt="Vincent Ramdhanie" width={18} height={18} />
+        </a>
       </div>
     </footer>
   )
