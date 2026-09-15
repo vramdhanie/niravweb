@@ -45,6 +45,48 @@ body {
   flex-direction: column;
 }
 
+/* Long-form article typography */
+.article-prose {
+  color: var(--primary);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+.article-prose h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--primary-dark);
+  margin-top: 2.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
+}
+.article-prose p {
+  margin-bottom: 1.25rem;
+}
+.article-prose a {
+  color: var(--secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.article-prose a:hover {
+  color: var(--secondary-dark);
+}
+.article-prose ul {
+  margin: 0 0 1.25rem 1.25rem;
+  list-style: disc;
+}
+.article-prose li {
+  margin-bottom: 0.4rem;
+}
+.article-prose strong {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+.article-prose .katex-display {
+  margin: 0;
+}
+
 /* Styling for MDX drawing content */
 .drawing-content h2 {
   font-size: 2rem;

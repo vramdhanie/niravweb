@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   Github,
   Orbit,
@@ -9,6 +10,7 @@ import {
   Sparkles,
   ImageIcon,
   ExternalLink,
+  BookOpen,
 } from 'lucide-react'
 import VisualizerSection from '@/components/basins/VisualizerSection'
 
@@ -34,6 +36,10 @@ const GALLERY = [
   {
     src: '/images/nbody/equilateral_basins.jpg',
     alt: '2D slice of the collision basins for three equal masses on an equilateral triangle — each region coloured by which planet an asteroid launched from that point reaches; white rings mark the planets.',
+  },
+  {
+    src: '/images/nbody/time_basins.jpg',
+    alt: 'The same basins coloured by time-to-hit — a warm red core wrapped in slower yellow-green filaments.',
   },
 ]
 
@@ -85,6 +91,13 @@ export default function HomePage() {
             {PROJECT.tagline}
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/articles/restricted-n-body-basins"
+              className="inline-flex items-center gap-2 rounded bg-white px-6 py-2.5 font-bold uppercase tracking-[var(--main-spacing)] text-[var(--primary-dark)] no-underline transition-transform duration-300 hover:scale-105"
+            >
+              <BookOpen size={18} />
+              Read the full article
+            </Link>
             <a
               href={PROJECT.repo}
               target="_blank"
