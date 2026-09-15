@@ -199,7 +199,7 @@ export default function BasinsViewer() {
 
       // ---- rebuild the visible slice into the point buffer ----
       const rebuild = () => {
-        const { slice: l0, planeSets: ps, preview: pv } = ctrl.current
+        const { slice: l0, planeSets: ps, preview: pv, planetsOn: on } = ctrl.current
         const r2 = res * res
         let count = 0
         for (let i = 0; i < res; i++) {
@@ -218,7 +218,7 @@ export default function BasinsViewer() {
               }
               if (!vis) continue
               const h = hit[base + k * res]
-              if (h < 0) continue
+              if (h < 0 || on[h] === false) continue // timeout, or planet toggled off
               const o = count * 3
               posArr[o] = x
               posArr[o + 1] = y
