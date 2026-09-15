@@ -21,7 +21,7 @@ const PROJECT = {
   eyebrow: 'Featured project',
   tagline:
     'GPU-accelerated basins of attraction: launch an asteroid from rest at every point in space and colour it by the planet it eventually collides with.',
-  repo: 'https://github.com/vramdhanie/RestrictiveNBodyProblem',
+  repo: 'https://github.com/KnobNA/RestrictiveNBodyProblem',
   author: 'Nirav Ramdhanie',
   license: 'MIT',
   tech: ['Python 3.10+', 'CuPy · CUDA GPU', 'Manim · 2D', 'VisPy · 3D', 'NumPy', 'Pillow'],
@@ -32,14 +32,17 @@ const GALLERY = [
   {
     src: '/images/nbody/3d_render.jpg',
     alt: '3D render of the collision basins — a lattice cube of starting points, each coloured by the planet its asteroid hits.',
+    caption: 'The basins in 4-D — a 3-flat through the lattice of initial conditions.',
   },
   {
     src: '/images/nbody/equilateral_basins.jpg',
     alt: '2D slice of the collision basins for three equal masses on an equilateral triangle — each region coloured by which planet an asteroid launched from that point reaches; white rings mark the planets.',
+    caption: 'A 2-D slice — three equal masses on an equilateral triangle.',
   },
   {
     src: '/images/nbody/time_basins.jpg',
     alt: 'The same basins coloured by time-to-hit — a warm red core wrapped in slower yellow-green filaments.',
+    caption: 'The same system, coloured by time-to-hit.',
   },
 ]
 
@@ -177,18 +180,20 @@ export default function HomePage() {
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {GALLERY.map((img) => (
-              <div
-                key={img.src}
-                className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[color:rgba(0,0,0,0.08)] bg-black"
-              >
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover"
-                />
-              </div>
+              <figure key={img.src}>
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[color:rgba(0,0,0,0.08)] bg-black">
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+                <figcaption className="mt-2 text-center text-sm text-[var(--primary-light)]">
+                  {img.caption}
+                </figcaption>
+              </figure>
             ))}
             {/* TODO: add more renders/screenshots as Nirav provides them. */}
             {Array.from({ length: Math.max(0, 3 - GALLERY.length) }).map((_, i) => (

@@ -5,7 +5,7 @@ import 'katex/dist/katex.min.css'
 import { MathBlock, MathInline } from '@/components/article/Math'
 import Figure from '@/components/article/Figure'
 
-const REPO = 'https://github.com/vramdhanie/RestrictiveNBodyProblem'
+const REPO = 'https://github.com/KnobNA/RestrictiveNBodyProblem'
 const IMG = '/images/nbody/article'
 
 export const metadata: Metadata = {
