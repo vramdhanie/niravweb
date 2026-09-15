@@ -210,11 +210,11 @@ export default function BasinsViewer() {
             const y = samples[j]
             const base = (i * res + j) * r2 + l0
             for (let k = 0; k < res; k++) {
-              let vis: boolean
-              if (pv) {
+              // The current selection (union of enabled planes) stays visible;
+              // a hovered strip previews its plane ON TOP of that selection.
+              let vis = inYZ || inXZ || ps.xy.has(k)
+              if (!vis && pv) {
                 vis = pv.axis === 0 ? i === pv.index : pv.axis === 1 ? j === pv.index : k === pv.index
-              } else {
-                vis = inYZ || inXZ || ps.xy.has(k)
               }
               if (!vis) continue
               const h = hit[base + k * res]

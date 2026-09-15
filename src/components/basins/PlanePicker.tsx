@@ -58,7 +58,8 @@ export default function PlanePicker({ resolution, sets, onToggle, onAll, onPrevi
         )
       })}
       <p className="text-[11px] leading-snug text-white/45">
-        Visible points are the union of the enabled planes. Hover a strip to preview a single plane.
+        Visible points are the union of the enabled planes. Click to keep a plane; hover a strip to
+        preview one on top of your selection.
       </p>
     </div>
   )
