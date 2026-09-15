@@ -268,19 +268,22 @@ export default function ArticlePage() {
             particle in a prescribed static multi-mass field. The planets are boundary conditions,
             not a self-consistent three-body geometry.
           </p>
+          <p>I took the Newtonian potential</p>
+          <MathBlock tex="\Phi(\mathbf{x}) = -\sum_i \frac{G m_i}{\lVert \mathbf{x} - \mathbf{p}_i \rVert}," />
+          <p>put it into the weak-field isotropic metric seen by a static observer at infinity,</p>
+          <MathBlock tex="g_{tt} \approx -\left(1 + \frac{2\Phi}{c^{2}}\right), \qquad g_{ij} \approx \left(1 - \frac{2\Phi}{c^{2}}\right)\delta_{ij}," />
           <p>
-            I put the Newtonian potential{' '}
-            <MathInline tex="\Phi(\mathbf{x}) = -\sum_i \dfrac{G m_i}{\lVert \mathbf{x} - \mathbf{p}_i \rVert}" />{' '}
-            into the weak-field isotropic metric seen by a static observer at infinity,
+            and the 3-acceleration in coordinate time <MathInline tex="t" /> is then the standard 1PN
+            geodesic form
           </p>
-          <MathBlock tex="ds^{2} = -\left(1 + \frac{2\Phi}{c^{2}}\right)c^{2}\,dt^{2} + \left(1 - \frac{2\Phi}{c^{2}}\right)\delta_{ij}\,dx^{i}dx^{j}," />
+          <MathBlock tex="\mathbf{a} = -\nabla\Phi\left(1 + \frac{v^{2}}{c^{2}} + \frac{4\Phi}{c^{2}}\right) + \frac{4\,\mathbf{v}\,(\mathbf{v}\cdot\nabla\Phi)}{c^{2}}." />
           <p>
-            and took the 3-acceleration in coordinate time from the standard 1PN geodesic equation.
-            Two consequences were immediate, and new to me in practice. First, the acceleration now
-            depends on the velocity, so RK4 must evaluate it afresh at every stage — acceleration as a
+            Two consequences were immediate, and new to me in practice. First, the acceleration
+            depends on the velocity, so RK4 must evaluate{' '}
+            <MathInline tex="\mathbf{a}(\mathbf{x},\mathbf{v})" /> at every stage — acceleration as a
             function of position alone is only the Newtonian special case. Second, the expansion is a
-            controlled correction to Newton only when <MathInline tex="v \ll c" /> and{' '}
-            <MathInline tex="|\Phi| \ll c^{2}" />. In these units (<MathInline tex="G = 1" />, sizes of
+            controlled correction to Newton only when <MathInline tex="|\Phi|/c^{2} \ll 1" /> and{' '}
+            <MathInline tex="|v|/c \ll 1" />. In these units (<MathInline tex="G = 1" />, sizes of
             order one) Newtonian speeds are of order one, so <MathInline tex="c" /> can’t be huge or
             the flag is invisible; but push the field strong enough — the gravitational radius{' '}
             <MathInline tex="Gm/c^{2}" /> approaching a planet’s radius — and the same formula is being
