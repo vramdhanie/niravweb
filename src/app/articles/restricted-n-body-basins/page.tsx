@@ -285,10 +285,9 @@ export default function ArticlePage() {
             controlled correction to Newton only when <MathInline tex="|\Phi|/c^{2} \ll 1" /> and{' '}
             <MathInline tex="|v|/c \ll 1" />. In these units (<MathInline tex="G = 1" />, sizes of
             order one) Newtonian speeds are of order one, so <MathInline tex="c" /> can’t be huge or
-            the flag is invisible; but push the field strong enough — the gravitational radius{' '}
-            <MathInline tex="Gm/c^{2}" /> approaching a planet’s radius — and the same formula is being
-            used outside the regime where it was derived. That’s what the “weak-field geodesic is a
-            toy” warning means. The picture is still coloured in coordinate time: there is no lensing,
+            the flag is invisible. If instead <MathInline tex="2GM/c^{2}" /> is comparable to a
+            planet’s radius, the same formula is being used outside its derivation. That’s what the
+            “weak-field geodesic is a toy” warning means. The picture is still coloured in coordinate time: there is no lensing,
             no time-dilated photograph.
           </p>
           <p>
