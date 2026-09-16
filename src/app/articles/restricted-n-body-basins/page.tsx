@@ -52,71 +52,77 @@ export default function ArticlePage() {
           width={1600}
           height={900}
           priority
-          caption="Figure 1. Restricted 4-body system — three fixed planets, collision basins coloured by which planet each asteroid hits."
+          caption="Figure 1. Restricted 4-body system — three fixed planets, collision basins coloured by which planet each asteroid hits. Settings: geodesic flag false, time-to-hit flag false."
         />
 
         <div className="article-prose mt-8">
           <h2>My misconceptions</h2>
           <p>
-            I used to think gravitational basins looked like Figure 2: three white “planets,”
-            unaffected by one another’s gravity, each owning a coloured region. Drop an “asteroid”
-            anywhere in the green region (at rest) and it falls into the green planet — or so I
+            I thought that gravitational basins look like Figure 2. The three white dots are
+            “planets” not affected by each other’s gravity, and each coloured section is their
+            respective gravitational basin. If we place an “asteroid” anywhere within the green
+            section (with initial velocity of 0), it will fall into the green planet… or so I
             thought.
           </p>
 
           <Figure
             src={`${IMG}/fig2.jpg`}
-            alt="A clean three-colour Voronoi-style diagram with three white dots — the naive picture of gravitational basins."
+            alt="A clean three-colour Voronoi-style diagram with three white dots — the naïve picture of gravitational basins."
             width={1600}
             height={895}
             caption="Figure 2. What I wrongly assumed the basins would look like — a tidy Voronoi partition."
           />
 
           <p>
-            That picture ignores something important: every planet shapes the gravitational field
-            the asteroids move through. An asteroid can miss the nearest planet entirely, swing
-            around the system, and end up colliding with any of them. The closest planet is not
-            guaranteed to be the one it hits.
+            I completely negated the fact that all planets are influencing the gravitational field
+            which the asteroids are placed in. Meaning the asteroids could completely miss the
+            closest planet and orbit the system and could possibly collide with any of the planets.
+            The closest planet doesn’t necessarily guarantee the asteroid colliding with it.
           </p>
           <p>
-            So I built a GPU simulation of the <strong>restricted n-body problem</strong>: a system
-            of <MathInline tex="n" /> bodies in which <MathInline tex="n-1" /> are fixed masses and
-            the last is a particle of negligible mass moving in their combined field. I’ll call the
-            fixed masses <em>planets</em> and the negligible mass an <em>asteroid</em>. Each asteroid
-            moves through Euclidean <MathInline tex="n" />-space under Newtonian inverse-square
-            gravity until it either collides with a planet of finite radius or runs out of time (a
-            cutoff). I launch one asteroid per pixel (or lattice point) and colour its starting point
-            by which planet it hits — or, optionally, by how long the fall takes. The result is an
-            image of the system’s gravitational basins.
+            So I decided to build a GPU simulation of the <strong>restricted n-body problem</strong>:
+            a system of <MathInline tex="n" /> bodies where <MathInline tex="n-1" /> are fixed masses,
+            and the last is a particle of negligible mass influenced by the gravitational fields of
+            the fixed masses. I will refer to the fixed masses as <em>planets</em> and the negligible
+            mass as <em>asteroids</em>. The asteroid moves in Euclidean{' '}
+            <MathInline tex="n" />-space under Newtonian inverse-square gravity until it collides
+            with a planet of a finite radius, or until the maximum allowed time by the simulation
+            has passed (cutoff time). I will send an asteroid for each pixel or lattice point and it
+            will be coloured by which planet it hits, or optionally by how long that takes. This will
+            ultimately return an image of the gravitational basins for this system.
           </p>
 
           <h2>The physical model</h2>
           <p>
-            Because the planets never move, they don’t define a self-consistent n-body spacetime, and
-            this isn’t the circular restricted three-body problem either. They are fixed “wells.”
-            Each asteroid at position <MathInline tex="\mathbf{x}" /> feels
+            Since the planets do not move, they do not define a self-consistent gravitational{' '}
+            <MathInline tex="n" />-body spacetime, and they do not define a circular restricted
+            three-body problem either. They are fixed “wells”. Each asteroid at position{' '}
+            <MathInline tex="\mathbf{x}" /> feels
           </p>
           <MathBlock tex="\mathbf{a}(\mathbf{x}) = \sum_{i} G\, m_i\, \frac{\mathbf{p}_i - \mathbf{x}}{\lVert \mathbf{p}_i - \mathbf{x}\rVert^{\,e}}, \qquad e = 3," />
           <p>
-            inverse-square by default, even when the ambient dimension <MathInline tex="n" /> is
-            greater than 3. That was a deliberate modelling choice: gravity as it behaves in
-            three-dimensional space, embedded in a higher-dimensional Euclidean space — not Gauss’s
-            law in <MathInline tex="n" /> dimensions (which would fall off as{' '}
-            <MathInline tex="1/r^{\,n-1}" />).
+            with default <MathInline tex="e = 3" /> (inverse square), even when the ambient
+            dimension <MathInline tex="n" /> is greater than 3. This was a modelling choice. Gravity
+            as in three-dimensional space, embedded in a higher-dimensional Euclidean space, not
+            Gauss’s law in <MathInline tex="n" /> dimensions (which would fall as{' '}
+            <MathInline tex="1/r^{\,n-1}" />
+            ).
           </p>
           <p>
-            Every asteroid starts at rest. A collision is a true geometric intersection with an{' '}
-            <MathInline tex="(n-1)" />-sphere of radius <MathInline tex="R" />: between time-steps I
-            form the line segment from the asteroid’s previous position to its current one, and if
-            that segment crosses a planet, the first planet it meets counts as the hit. Motion is
-            integrated with per-particle RK4 on the GPU; near a surface the step is CFL-limited so it
-            can’t jump over the sphere. I colour the starting point with the colour of the planet it
-            hits; if an asteroid survives to the maximum time, I colour its start black. Together
-            these colours paint the basins.
+            All asteroids start at rest. A collision is counted through a true geometric collision
+            with an <MathInline tex="(n-1)" />-sphere of radius <MathInline tex="R" />. There is a
+            line segment created from the previous position of an asteroid to the current position of
+            the asteroid between each time-step. If this line collides with a planet, then the first
+            planet intersected will be counted as a collision. Motion is integrated with per-particle
+            RK4 on the GPU; near a surface the step is CFL-limited so it cannot jump over the sphere.
+            The initial position is coloured the same colour of the planet. If an asteroid reaches
+            the maximum time <MathInline tex="t_{\max}" /> it colours the initial position black. This
+            ultimately colours the image with the gravitational basins.
           </p>
           <p>
-            An optional map colours each start by collision time instead. I added it mostly to see
-            how it would look — and it looks good.
+            An optional map colours by collision time over{' '}
+            <MathInline tex="[0,\, t_{\max}]" />. I basically added this just to see how it looks,
+            it’s cool.
           </p>
 
           <Figure
@@ -124,13 +130,13 @@ export default function ArticlePage() {
             alt="The same system coloured by time-to-hit: red interiors collide quickly, yellow-green filaments take much longer."
             width={1600}
             height={900}
-            caption="Figure 3. Coloured by time-to-hit instead of by planet — red is fast, the filamentary sea is slow."
+            caption="Figure 3. Coloured by time-to-hit (red is fast, the filamentary sea is slow). Settings: geodesic flag true, time-to-hit flag true."
           />
 
           <p>
-            There’s also an optional first-post-Newtonian (1PN) “geodesic” flag, which I added out of
-            curiosity. It’s geodesic motion in a prescribed static multi-mass potential, not
-            general-relativistic three-body physics.
+            An optional first-post-Newtonian geodesic flag exists since I was also curious. It is
+            geodesic motion in a prescribed static multi-mass potential, not general-relativistic
+            three-body physics.
           </p>
 
           <Figure
@@ -138,7 +144,7 @@ export default function ArticlePage() {
             alt="Collision basins with the geodesic flag on — visibly different filament structure from Figure 1."
             width={1600}
             height={900}
-            caption="Figure 4. The same system with the geodesic flag on. Notice the physical difference between Figure 1 and Figure 4."
+            caption="Figure 4. The same system with the geodesic flag on. Notice the physical difference between Figure 1 and Figure 4. Settings: geodesic flag true, time-to-hit flag false."
           />
 
           <Figure
@@ -147,49 +153,51 @@ export default function ArticlePage() {
             width={1600}
             height={1057}
             dark
-            caption="Figure 5. The same basins visualised in 4-D — a 3-flat through the cube of initial conditions, with sliders for the extra axis."
+            caption="Figure 5. The same basins visualised in 4-D — a 3-flat through the cube of initial conditions. Settings: geodesic flag false, time-to-hit flag false, visualised in 4-D."
           />
 
-          <h2>Why rotations don’t grow linearly</h2>
+          <h2>Why rotations don’t increase linearly</h2>
           <p>
-            I hit a question along the way: what’s the most efficient way to describe a cube in
-            n-dimensional space? I needed this because I wanted to visualise higher-dimensional
-            basins, using a 3-dimensional cube as a window — a 3-dimensional cross-section. I’d
-            assumed the number of rotations grew linearly with dimension. I was wrong again.
+            I had a problem, or really just a question. What is the most efficient way to describe a
+            cube in <MathInline tex="n" />-dimensional space? The reason why I needed this is because
+            I wanted to visualise higher dimensions of gravitational basins. The cube is the
+            3-dimensional window that you can view. A 3-dimensional cross section. I originally
+            thought that the set of rotations increases linearly as the dimensions increase. I soon
+            found out that I was very wrong once again.
           </p>
           <p>
             Translations in <MathInline tex="\mathbb{R}^{n}" /> have <MathInline tex="n" /> degrees of
-            freedom, one per axis. Rotations don’t behave so simply. The orientation-preserving
-            rotations of <MathInline tex="\mathbb{R}^{n}" /> form the special orthogonal group{' '}
-            <MathInline tex="SO(n)" />: the real <MathInline tex="n \times n" /> matrices{' '}
+            freedom: one per axis. Rotations don’t act the same way. The group of
+            orientation-preserving rotations of <MathInline tex="\mathbb{R}^{n}" /> is the special
+            orthogonal group <MathInline tex="SO(n)" />: real <MathInline tex="n \times n" /> matrices{' '}
             <MathInline tex="R" /> with
           </p>
           <MathBlock tex="R^{\mathsf{T}} R = I, \qquad \det R = +1." />
           <p>
-            The constraint <MathInline tex="R^{\mathsf{T}} R = I" /> says the columns form an
-            orthonormal basis. Infinitesimally, <MathInline tex="R = I + A" /> with{' '}
-            <MathInline tex="A" /> skew-symmetric (<MathInline tex="A^{\mathsf{T}} = -A" />), and a
-            skew-symmetric matrix is fixed by its strictly upper-triangular entries — one independent
-            number for each unordered pair of axes. There are <MathInline tex="\binom{n}{2}" /> such
-            pairs, so
+            The constraint <MathInline tex="R^{\mathsf{T}} R = I" /> is equivalent to the columns
+            being an orthonormal basis. Infinitesimally, <MathInline tex="R = I + A" /> with{' '}
+            <MathInline tex="A" /> skew-symmetric (<MathInline tex="A^{\mathsf{T}} = -A" />
+            ). A skew-symmetric matrix is fixed by its strictly upper-triangular entries: one
+            independent number for each unordered pair of axes. There are{' '}
+            <MathInline tex="\binom{n}{2}" /> such pairs, so
           </p>
           <MathBlock tex="\dim SO(n) = \binom{n}{2} = \frac{n(n-1)}{2}." />
           <p>
-            That’s quadratic in <MathInline tex="n" />. Each pair of coordinates spans a plane, and
-            each plane carries its own rotation angle. In 2D there’s one plane and one angle; in 3D
-            there are three (yaw, pitch, roll); in 4D there are already six independent rotations; in
-            10D, forty-five.
+            That is quadratic in <MathInline tex="n" />. Each pair of coordinates spans a plane, and
+            each plane carries its own rotation angle. In 2D there is one plane and one angle. In 3D
+            there are three planes (yaw, pitch, roll). In 4D there are already six independent
+            rotations. 10D has forty-five of them.
           </p>
           <p>
-            That’s also why a 2D image of this system is a 2-flat (an affine 2-plane) in{' '}
+            That is why a 2D image of this system is a 2-flat (an affine 2-plane) in{' '}
             <MathInline tex="\mathbb{R}^{n}" />, simulated with one asteroid per pixel, after which
             the motion is still <MathInline tex="n" />-dimensional. A 3D view is a 3-flat through an{' '}
-            <MathInline tex="n" />-dimensional cube of initial conditions, with the extra axes chosen
-            by sliders. An <MathInline tex="(n-1)" />-sphere of radius <MathInline tex="R" /> meets a
+            <MathInline tex="n" />-dimensional cube of initial conditions. Extra axes are chosen with
+            sliders. An <MathInline tex="(n-1)" />-sphere of radius <MathInline tex="R" /> meets a
             3-flat in a ball of apparent radius <MathInline tex="\sqrt{R^{2} - d^{2}}" />, or not at
-            all if its centre lies farther than <MathInline tex="R" /> from that flat. You can even
-            mix planet dimensions — a 3D mass in 4D simply sits at <MathInline tex="w = 0" /> by
-            padding.
+            all if the centre is farther than <MathInline tex="R" /> from that flat. It is also
+            possible to do mixed-dimension planets: a 3D mass in 4D sits at{' '}
+            <MathInline tex="w = 0" /> by padding.
           </p>
 
           <Figure
@@ -203,74 +211,77 @@ export default function ArticlePage() {
 
           <h2>What the basins actually look like</h2>
           <p>
-            I ran simulations for essentially one system: three equal masses on an equilateral
-            triangle. As it turns out, the rest-start collision map is not a tidy Voronoi diagram.
-            Close in, each planet has a compact capture region, analogous to a Roche lobe. Far away,
-            the combined field is nearly that of a single point mass, so an asteroid starting at rest
-            falls almost radially — and which planet it finally hits is decided by tiny deflections as
-            it threads the triangle, so the far field looks like radial stripes. Between those two
-            regimes, the boundary is deeply chaotic.
+            See Figures 1 and 5. I pretty much did simulations for one system: three equal masses on
+            an equilateral triangle. As I figured out, the rest-start collision map is not a tidy
+            Voronoi diagram. Close in, each planet has a compact capture region analogous to a Roche
+            lobe. Far away the combined field is nearly that of a point mass, so a particle that
+            starts at rest falls almost radially. Which planet the asteroid eventually hits is
+            decided by tiny deflections as it threads the triangle. The far-field therefore looks
+            like radial stripes. Between those two regimes the boundary is very chaotic.
           </p>
           <p>
-            That structure is a basin of attraction in configuration space (here, the space of
+            That structure is a basin of attraction in configuration space (here the space of
             initial positions at zero velocity). The images show the hallmarks of{' '}
-            <strong>Wada basins</strong>, where the boundary of each colour is at the same time a
-            boundary of all the colours. A set <MathInline tex="B" /> is a Wada boundary if every open
-            neighbourhood of a point of <MathInline tex="B" /> meets every basin — so there’s no edge
-            that separates “only red from blue.” Any neighbourhood of the boundary contains red, blue
-            and green at once.
+            <strong>Wada basins</strong>: the boundary of each colour appears to be a boundary of all
+            colours. A set <MathInline tex="W" /> is a Wada boundary if every open neighbourhood of a
+            point of <MathInline tex="W" /> intersects every basin. Then there is no “edge between
+            only red and blue”. Any neighbourhood of the edge contains all red, blue, and green.
           </p>
           <p>
-            I didn’t prove the Wada property. I learnt the definition by zooming into a boundary and
-            watching new basins keep appearing inside it; what I found looks consistent with Wada
-            behaviour. The boundary is fractal in the practical sense that its apparent length grows
-            under refinement, and deciding which planet an asteroid on the boundary will hit is
-            unstable under arbitrarily small shifts of its starting point — a sensitive dependence on
-            initial conditions.
+            I did not prove the Wada property to <MathInline tex="\varepsilon\text{--}\delta" />. I
+            learnt the definition by zooming in on a boundary in which the basins appear to
+            continuously keep appearing in the middle of a boundary. The images I obtained from this
+            appear to follow Wada properties. The boundary is fractal in the practical sense that its
+            apparent length grows under refinement and figuring out which planet an asteroid will hit
+            if its initial position is on a boundary is unstable under arbitrarily small shifts of
+            the initial point. Therefore a sensitive dependence. See Figures 1 and 4.
           </p>
           <p>
             Colouring by time-to-hit makes the slow layer obvious: the interiors of the lobes collide
-            quickly (red), while the filamentary sea takes much longer (green/blue). See Figure 3.
+            quickly (red). The filamentary sea takes much longer (green/blue). See Figure 3.
           </p>
 
-          <h2>How I built it</h2>
-          <p>
-            I used Python, NumPy and CuPy. Each asteroid is an independent initial-value problem, so
-            the natural parallelism is one asteroid per unit of GPU work, compacting finished
-            particles out of the working set as they collide. I render 2D stills with Manim (the
-            pixel count is the asteroid count). I visualise the n-dimensional lattice with VisPy: a
-            white 3-cube for the first three sampling axes, sliders for the rest, and a union of
-            coordinate-plane slices. Each run can be saved as an <code>.npz</code> file (initial
-            lattice, hit index, collision time) and reopened without re-simulating.
-          </p>
-
-          <Figure
-            src={`${IMG}/fig7.jpg`}
-            alt="The viewer's control panel: sliders for the extra dimension, coordinate-plane toggles, planet checkboxes and colouring options."
-            width={773}
-            height={1600}
-            dark
-            caption="Figure 7. The viewer’s settings — extra-dimension slider, coordinate-plane unions, planet toggles and colour modes."
-          />
+          <h2>How I built the simulation</h2>
+          <div className="my-8 flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-8">
+            <p className="mb-0! md:flex-1">
+              I used Python, NumPy, and CuPy. Each asteroid is an independent initial-value problem,
+              so the natural parallelism is one asteroid per GPU block of work, compacting finished
+              particles off the work set. Two-dimensional stills are rendered with Manim (pixel count
+              is asteroid count). The n-D lattice is visualised with VisPy: a white 3-cube for the
+              first three sampling axes, sliders are used for the rest, and a union of
+              coordinate-plane slices. Each simulated run can be saved as an <code>.npz</code> file
+              (initial lattice, hit index, collision time) and reopened without the need to
+              re-simulate the system.
+            </p>
+            <Figure
+              src={`${IMG}/fig7.jpg`}
+              alt="The VisPy Basin controls window: extra-dimension slider, coordinate-plane toggles, planet checkboxes and colouring options."
+              width={773}
+              height={1600}
+              variant="panel"
+              caption="Figure 7. The viewer’s settings panel. Settings: VisPy “Basin controls” (extra-dimension slider, coordinate-plane unions, planet toggles, colour modes)."
+            />
+          </div>
 
           <h2>A first look at relativistic motion</h2>
           <p>
-            The relativistic flag was never the point of the program, but it was the hardest physics
-            I had to get straight. What would the system look like under relativistic motion? Another
-            curious question — so I tried to implement it. I’m not certain it’s correct, but things
-            look different, which makes me think something is working.
+            See Figure 4. The relativistic flag was not the point of the programme, but it was the
+            hardest piece of physics I had to get straight. What if the system was affected by
+            relativistic motion? This was just another curious question I had and I wanted to see
+            what would happen. I tried my best to implement this, I am not entirely sure if it is
+            correct but things look different, which makes me think something works.
           </p>
           <p>
-            Exact multi-planet general relativity has no closed-form metric. Einstein’s equations are
-            nonlinear, so you can’t add up a Schwarzschild solution for each mass and call the sum a
-            spacetime. I wanted the asteroid to feel all of the frozen planets at once, and the
-            consistent choice — given planets held fixed by hand — is geodesic motion of a test
+            Exact multi-planet general relativity is not a closed-form metric. Einstein’s equations
+            are nonlinear, so you cannot add Schwarzschild solutions for each mass and call the sum a
+            spacetime. I wanted the asteroid to feel all of the frozen planets at once. The
+            consistent choice, given planets held fixed by hand, is geodesic motion of a test
             particle in a prescribed static multi-mass field. The planets are boundary conditions,
-            not a self-consistent three-body geometry.
+            not a self-consistent 3-body geometry.
           </p>
           <p>I took the Newtonian potential</p>
           <MathBlock tex="\Phi(\mathbf{x}) = -\sum_i \frac{G m_i}{\lVert \mathbf{x} - \mathbf{p}_i \rVert}," />
-          <p>put it into the weak-field isotropic metric seen by a static observer at infinity,</p>
+          <p>put into the weak-field isotropic metric seen by a static observer at infinity,</p>
           <MathBlock tex="g_{tt} \approx -\left(1 + \frac{2\Phi}{c^{2}}\right), \qquad g_{ij} \approx \left(1 - \frac{2\Phi}{c^{2}}\right)\delta_{ij}," />
           <p>
             and the 3-acceleration in coordinate time <MathInline tex="t" /> is then the standard 1PN
@@ -278,23 +289,26 @@ export default function ArticlePage() {
           </p>
           <MathBlock tex="\mathbf{a} = -\nabla\Phi\left(1 + \frac{v^{2}}{c^{2}} + \frac{4\Phi}{c^{2}}\right) + \frac{4\,\mathbf{v}\,(\mathbf{v}\cdot\nabla\Phi)}{c^{2}}." />
           <p>
-            Two consequences were immediate, and new to me in practice. First, the acceleration
-            depends on the velocity, so RK4 must evaluate{' '}
-            <MathInline tex="\mathbf{a}(\mathbf{x},\mathbf{v})" /> at every stage — acceleration as a
-            function of position alone is only the Newtonian special case. Second, the expansion is a
-            controlled correction to Newton only when <MathInline tex="|\Phi|/c^{2} \ll 1" /> and{' '}
-            <MathInline tex="|v|/c \ll 1" />. In these units (<MathInline tex="G = 1" />, sizes of
-            order one) Newtonian speeds are of order one, so <MathInline tex="c" /> can’t be huge or
-            the flag is invisible. If instead <MathInline tex="2GM/c^{2}" /> is comparable to a
-            planet’s radius, the same formula is being used outside its derivation. That’s what the
-            “weak-field geodesic is a toy” warning means. The picture is still coloured in coordinate time: there is no lensing,
-            no time-dilated photograph.
+            Two consequences are immediate and were new to me in practice. First,{' '}
+            <MathInline tex="\mathbf{a}" /> depends on velocity, so the integrator’s RK4 stages must
+            evaluate <MathInline tex="\mathbf{a}(\mathbf{x},\mathbf{v})" /> at each stage.
+            Acceleration as a function of position alone is the Newtonian special case. Second, the
+            expansion is only a controlled correction to Newton when{' '}
+            <MathInline tex="|\Phi|/c^{2} \ll 1" /> and <MathInline tex="|v|/c \ll 1" />. In these
+            units (<MathInline tex="G \sim 1" />, sizes <MathInline tex="\sim 1" />) Newtonian speeds
+            are order one, so <MathInline tex="c" /> cannot be huge or the flag is invisible. If
+            instead <MathInline tex="2GM/c^{2}" /> is comparable to a planet’s radius, the same
+            formula is being used outside its derivation. That is what the “weak-field geodesic is a
+            toy” warning means. The picture is still coloured in coordinate time: there is no
+            lensing, no time-dilated photograph.
           </p>
           <p>
-            I learnt that you don’t “turn on relativity” by sprinkling in extra{' '}
-            <MathInline tex="c" /> terms, and you don’t get a three-body spacetime by superposing
-            black holes. You pick a metric, write the geodesic equation in a definite time
-            coordinate, and stay honest about the regime where the approximation holds.
+            I learnt that you do not “turn on relativity” by adding extra{' '}
+            <MathInline tex="1/r^{2}" /> terms at random, and you do not get a 3-body spacetime by
+            superposing black holes. You pick a metric, write the geodesic equation in a definite
+            time coordinate, and stay honest about the regime of the approximation. Implementing it
+            meant accepting an approximate geodesic law and stating clearly where that approximation
+            stops being a small correction.
           </p>
 
           <Figure
@@ -303,56 +317,57 @@ export default function ArticlePage() {
             width={1600}
             height={1006}
             dark
-            caption="Figure 8. The geodesic flag on, visualised in 4-D. Notice the physical difference between Figure 5 and Figure 8."
+            caption="Figure 8. Geodesic flag on, visualised in 4-D. Notice the physical difference between Figure 5 and Figure 8. Settings: geodesic flag true, time-to-hit flag false, visualised in 4-D."
           />
 
-          <h2>What the program is for</h2>
+          <h2>What the programme is made for</h2>
           <p>
-            This is a poor model of orbital mechanics. The planets don’t orbit one another, the
-            asteroids start at rest, and there’s no radiation pressure, no oblateness, no third-body
-            ephemeris; the quantity of interest is where a collision ends, not the trajectory. I
-            wouldn’t use it to design a transfer.
+            This is quite a poor model of orbital mechanics. The planets do not orbit each other, the
+            asteroids start at rest, there is no radiation pressure, no oblateness, no third-body
+            ephemeris, and the quantity of interest is the endpoint of a collision, not its
+            trajectory. I would not use it to design a transfer.
           </p>
           <p>
-            What it is, is a clean laboratory for chaotic scattering and basin boundaries: a
-            deterministic Newtonian system whose long-term fate — as a function of initial position —
-            is fractal and, in the three-colour case, Wada-like. That’s the same mathematical species
-            as other open Hamiltonian exit problems.
+            It is effectively a clean laboratory for chaotic scattering and basin boundaries. A
+            deterministic Newtonian system whose long-term fate, as a function of initial position,
+            is fractal and (in the three-colour case) Wada-like. That is the same mathematical
+            species as other open Hamiltonian exit problems.
           </p>
           <p>
-            It’s also a data-visualisation problem. The object of interest is a function from a region
-            of <MathInline tex="\mathbb{R}^{n}" /> to a discrete label (or to a time). For{' '}
-            <MathInline tex="n > 3" /> you can’t see it all at once, since we live in three
-            dimensions — so I use 2-flats, 3-flats and extra-coordinate sliders to slide through the
-            4th dimension and watch the basin change, with two different colourings of the same
-            samples. Visualising the planets themselves by their intersection with the current flat is
-            the same idea applied to the <MathInline tex="(n-1)" />-spheres.
+            It is also a data-visualisation problem. The object of interest is a function from a
+            region of <MathInline tex="\mathbb{R}^{n}" /> to a discrete label (or to a time). For{' '}
+            <MathInline tex="n > 3" /> you cannot see it at once since we live in 3-dimensional
+            space. I decided to use 2-flats, 3-flats, extra-coordinate sliders so that you can
+            effectively slide through the 4th dimension and see how the basin changes. There are also
+            two different colourings of the same samples. Visualising{' '}
+            <MathInline tex="(n-1)" />-spheres by their intersection with the current flat is the
+            same idea applied to the planets themselves.
           </p>
 
           <h2>What I learnt</h2>
-          <ul>
-            <li>
-              Rotations in <MathInline tex="n" /> dimensions form <MathInline tex="SO(n)" />, with{' '}
-              <MathInline tex="\tfrac{n(n-1)}{2}" /> degrees of freedom. The key point is that it’s
-              quadratic, not linear — a big misconception of mine, corrected.
-            </li>
-            <li>
-              These systems aren’t as simple as Voronoi diagrams. This is a fractal basin problem, and
-              with three colours the boundary appears to behave like a Wada boundary. The chaos isn’t
-              randomness, either: it’s deterministic motion whose endpoint, as a map from initial
-              data, is unstable at every scale.
-            </li>
-            <li>
-              The 1PN geodesic made something concrete — that relativistic motion is motion in a
-              metric, that the Newtonian limit is a controlled expansion in <MathInline tex="v/c" />{' '}
-              and <MathInline tex="\Phi/c^{2}" />, and that a multi-mass spacetime is not a sum of
-              one-body solutions.
-            </li>
-            <li>
-              A visualisation of high-dimensional data is only as honest as the cross-section you
-              choose — and, in the end, it all depends on your frame of reference.
-            </li>
-          </ul>
+          <p>
+            Rotations in <MathInline tex="n" /> dimensions are <MathInline tex="SO(n)" />, with{' '}
+            <MathInline tex="\tfrac{n(n-1)}{2}" /> degrees of freedom. The most important part is
+            that it is quadratic, not linear. Big misconception I believed.
+          </p>
+          <p>
+            I learnt that these systems aren’t as simple as Voronoi diagrams. It is a fractal basin
+            problem, and with three colours the boundary appears to behave like a Wada boundary. The
+            chaos here is not random either. It is deterministic motion whose endpoint, as a map
+            from initial data, is unstable at every scale.
+          </p>
+          <p>
+            The 1PN geodesic made concrete that relativistic motion is motion in a metric, that the
+            Newtonian limit is a controlled expansion in <MathInline tex="v/c" /> and{' '}
+            <MathInline tex="\Phi/c^{2}" />, and that a multi-mass spacetime is not a sum of one-body
+            solutions. Implementing it meant accepting an approximate geodesic law and stating
+            clearly where that approximation stops being a small correction.
+          </p>
+          <p>
+            On the engineering side I learnt that a visualisation of high-dimensional data is only as
+            honest as the cross section you chose, and that it all pretty much depends on your frame
+            of reference.
+          </p>
 
           <Figure
             src={`${IMG}/fig9.jpg`}
@@ -360,7 +375,7 @@ export default function ArticlePage() {
             width={1600}
             height={1029}
             dark
-            caption="Figure 9. Coloured by time-to-hit, visualised in 4-D."
+            caption="Figure 9. Coloured by time-to-hit, visualised in 4-D. Settings: geodesic flag false, time-to-hit flag true, visualised in 4-D."
           />
           <Figure
             src={`${IMG}/fig10.jpg`}
@@ -368,12 +383,12 @@ export default function ArticlePage() {
             width={1600}
             height={1044}
             dark
-            caption="Figure 10. Only the set of starting points that collide with the red planet."
+            caption="Figure 10. Only the set of starting points that collide with the red planet. Settings: geodesic flag false, time-to-hit flag false, visualised in 4-D, red-planet hits only."
           />
 
           <h2>References</h2>
           <p className="text-sm text-[var(--primary-light)]">
-            These pages helped a lot while researching the project.
+            These pages helped a lot with researching for this project.
           </p>
           <ul>
             <li>
