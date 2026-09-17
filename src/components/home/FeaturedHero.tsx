@@ -106,7 +106,7 @@ export default function FeaturedHero({
         >
           Visualising what the gravitational basins for <em>n</em> fixed masses may look like.
           Clicking{' '}
-          <span ref={triggerRef} className="underline decoration-white/50 decoration-dotted underline-offset-4">
+          <span ref={triggerRef} className="whitespace-nowrap">
             this button
           </span>{' '}
           will frac…tal your mind. Yeah, that sounded better in my head.

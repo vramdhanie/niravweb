@@ -4,12 +4,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import AsteroidField from '@/components/home/AsteroidField'
 import FeaturedHero from '@/components/home/FeaturedHero'
 import GrowingArrow from '@/components/home/GrowingArrow'
-import { boxCentre, generateChaoticPath, pointBelow, type Box } from '@/lib/chaoticPath'
+import { boxCentre, ellipseAround, generateChaoticPath, randomPerpFromEllipse, type Box, type Ellipse } from '@/lib/chaoticPath'
 
 interface Trail {
   id: number
   d: string
   duration: number
+  stem?: boolean
+}
+
+interface HeroDecor {
+  ellipse: Ellipse
 }
 
 function localBox(el: Element, wrap: DOMRect): Box {
@@ -41,6 +46,7 @@ export default function HomeFeatured({ title, eyebrow, repo, author }: Props) {
   const readRef = useRef<HTMLButtonElement>(null)
 
   const [heroTrail, setHeroTrail] = useState<Trail | null>(null)
+  const [heroDecor, setHeroDecor] = useState<HeroDecor | null>(null)
   const [clickTrails, setClickTrails] = useState<Trail[]>([])
   const [reduceMotion, setReduceMotion] = useState(false)
   const nextId = useRef(1)
@@ -66,18 +72,24 @@ export default function HomeFeatured({ title, eyebrow, repo, author }: Props) {
   const makeHeroPath = useCallback(() => {
     if (reduceMotion) {
       setHeroTrail(null)
+      const m = measure()
+      if (m) setHeroDecor({ ellipse: ellipseAround(localBox(m.startEl, m.wrap)) })
+      else setHeroDecor(null)
       return
     }
     const m = measure()
     if (!m) return
-    const start = pointBelow(localBox(m.startEl, m.wrap), 0)
+    const ellipse = ellipseAround(localBox(m.startEl, m.wrap))
+    const { start, tangent } = randomPerpFromEllipse(ellipse)
     const d = generateChaoticPath({
       start,
       bounds: m.bounds,
       avoid: localBox(m.endEl, m.wrap),
       mode: 'hero',
+      startTan: tangent,
     })
-    setHeroTrail({ id: 0, d, duration: 3000 })
+    setHeroDecor({ ellipse })
+    setHeroTrail({ id: 0, d, duration: 3000, stem: true })
   }, [measure, reduceMotion])
 
   useEffect(() => {
@@ -157,8 +169,25 @@ export default function HomeFeatured({ title, eyebrow, repo, author }: Props) {
         className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible"
         aria-hidden
       >
+        {heroDecor ? (
+          <ellipse
+            cx={heroDecor.ellipse.cx}
+            cy={heroDecor.ellipse.cy}
+            rx={heroDecor.ellipse.rx}
+            ry={heroDecor.ellipse.ry}
+            fill="none"
+            stroke="rgb(24, 118, 158)"
+            strokeWidth={2.1}
+          />
+        ) : null}
         {heroTrail ? (
-          <GrowingArrow key={`hero-${heroTrail.d.slice(0, 24)}`} id="hero-trail" d={heroTrail.d} duration={heroTrail.duration} />
+          <GrowingArrow
+            key={`hero-${heroTrail.d.slice(0, 24)}`}
+            id="hero-trail"
+            d={heroTrail.d}
+            duration={heroTrail.duration}
+            stem
+          />
         ) : null}
         {clickTrails.map((t) => (
           <GrowingArrow key={t.id} id={`read-trail-${t.id}`} d={t.d} duration={t.duration} />

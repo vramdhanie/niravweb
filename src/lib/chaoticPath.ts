@@ -17,6 +17,32 @@ export function pointBelow(b: Box, gap = 10): Pt {
   return { x: b.x + b.width / 2, y: b.y + b.height + gap }
 }
 
+export type Ellipse = { cx: number; cy: number; rx: number; ry: number }
+
+/** Axis-aligned ellipse that loosely circles a text box. */
+export function ellipseAround(b: Box, padX = 14, padY = 10): Ellipse {
+  return {
+    cx: b.x + b.width / 2,
+    cy: b.y + b.height / 2,
+    rx: Math.max(b.width / 2 + padX, 28),
+    ry: Math.max(b.height / 2 + padY, 14),
+  }
+}
+
+/** Random point on the ellipse, leaving along the outward normal. */
+export function randomPerpFromEllipse(e: Ellipse): { start: Pt; tangent: Pt } {
+  const theta = Math.random() * Math.PI * 2
+  const start = {
+    x: e.cx + e.rx * Math.cos(theta),
+    y: e.cy + e.ry * Math.sin(theta),
+  }
+  const n = unit({
+    x: (start.x - e.cx) / (e.rx * e.rx),
+    y: (start.y - e.cy) / (e.ry * e.ry),
+  })
+  return { start, tangent: n }
+}
+
 function dist(a: Pt, b: Pt) {
   return Math.hypot(b.x - a.x, b.y - a.y)
 }
@@ -188,22 +214,42 @@ function fitArc(
   return { c, r, a0, a1 }
 }
 
+function rotate(p: Pt, rad: number): Pt {
+  const c = Math.cos(rad)
+  const s = Math.sin(rad)
+  return { x: p.x * c - p.y * s, y: p.x * s + p.y * c }
+}
+
+/** ±30° from the inward normal — 60° to 120° from the edge. */
+const APPROACH_HALF = Math.PI / 6
+
+function inApproachCone(arrive: Pt, outward: Pt) {
+  const a = unit(arrive)
+  return a.x * -outward.x + a.y * -outward.y >= Math.cos(APPROACH_HALF)
+}
+
+function randomApproach(outward: Pt): Pt {
+  return rotate({ x: -outward.x, y: -outward.y }, (Math.random() * 2 - 1) * APPROACH_HALF)
+}
+
 function landingArcOk(
   fitted: { c: Pt; r: number; a0: number; a1: number },
+  dir: 1 | -1,
   end: Pt,
   outward: Pt,
   avoid: Box
 ) {
   if (arcCutsInterior(fitted.c, fitted.r, fitted.a0, fitted.a1, avoid)) return false
   const before = polar(fitted.c, fitted.r, fitted.a1 - Math.sign(fitted.a1 - fitted.a0) * 0.1)
-  return (before.x - end.x) * outward.x + (before.y - end.y) * outward.y > 1.5
+  if ((before.x - end.x) * outward.x + (before.y - end.y) * outward.y <= 1.5) return false
+  return inApproachCone(orbitTangent(fitted.a1, dir), outward)
 }
 
 function tryLandingArc(from: Pt, tan: Pt, end: Pt, outward: Pt, avoid: Box) {
   for (const dir of [1, -1] as const) {
     const fitted = fitArc(from, tan, end, dir)
     if (!fitted) continue
-    if (!landingArcOk(fitted, end, outward, avoid)) continue
+    if (!landingArcOk(fitted, dir, end, outward, avoid)) continue
     return arc(fitted.r, fitted.a1 - fitted.a0, dir, end)
   }
   return null
@@ -231,6 +277,26 @@ function landingArcs(prev: Pt, tan: Pt, end: Pt, outward: Pt, avoid: Box): strin
   return null
 }
 
+/** Last segment rides a ray in the 60–120° cone; the join to it stays G1. */
+function approachInCone(prev: Pt, tan: Pt, end: Pt, outward: Pt, avoid: Box): string | null {
+  const arrive = randomApproach(outward)
+  for (const dist of [56, 80, 110, 150, 200, 260]) {
+    const hover = { x: end.x - arrive.x * dist, y: end.y - arrive.y * dist }
+    if (inInterior(hover, inflate(avoid, 16), 0)) continue
+    const kOut = clamp(dist * 0.38, 20, dist * 0.48)
+    const cJoinOut = add(hover, scale(arrive, kOut))
+    const cEnd = add(end, scale(arrive, -kOut))
+    if (cubicCutsInterior(hover, cJoinOut, cEnd, end, avoid)) continue
+
+    const kh = handleLen(prev, hover, 72)
+    const c1 = add(prev, scale(tan, kh))
+    const cJoinIn = add(hover, scale(arrive, -kh))
+    if (cubicCutsInterior(prev, c1, cJoinIn, hover, avoid)) continue
+    return cubic(c1, cJoinIn, hover) + cubic(cJoinOut, cEnd, end)
+  }
+  return null
+}
+
 function appendSmoothLanding(
   d: string,
   prev: Pt,
@@ -245,30 +311,30 @@ function appendSmoothLanding(
     const arcs = landingArcs(prev, tan, end, outward, avoid)
     if (arcs) return d + arcs
   }
+  for (const edge of shuffledEdges()) {
+    const { end, outward } = landingOnEdge(avoid, edge)
+    const cone = approachInCone(prev, tan, end, outward, avoid)
+    if (cone) return d + cone
+  }
 
   const { end, outward } = landingOnEdge(avoid, shuffledEdges()[0])
-  const arrive = unit(add(scale(tan, 0.85), scale({ x: -outward.x, y: -outward.y }, 0.15)))
+  const arrive = randomApproach(outward)
   const k = handleLen(prev, end, 72)
   const c1 = add(prev, scale(tan, k))
   const c2 = add(end, scale(arrive, -k))
   if (!cubicCutsInterior(prev, c1, c2, end, avoid)) return d + cubic(c1, c2, end)
 
-  const away = unit({
-    x: (prev.x + end.x) / 2 - boxCentre(avoid).x,
-    y: (prev.y + end.y) / 2 - boxCentre(avoid).y,
-  })
-  const hover = { x: (prev.x + end.x) / 2 + away.x * 64, y: (prev.y + end.y) / 2 + away.y * 64 }
+  const hover = { x: end.x - arrive.x * 90, y: end.y - arrive.y * 90 }
   const k1 = handleLen(prev, hover, 72)
   const k2 = handleLen(hover, end, 72)
-  const join = unit(add(scale(tan, 0.7), scale(unit({ x: end.x - hover.x, y: end.y - hover.y }), 0.3)))
   return (
     d +
-    cubic(add(prev, scale(tan, k1)), add(hover, scale(join, -k1)), hover) +
-    cubic(add(hover, scale(join, k2)), add(end, scale(arrive, -k2)), end)
+    cubic(add(prev, scale(tan, k1)), add(hover, scale(arrive, -k1)), hover) +
+    cubic(add(hover, scale(arrive, k2)), add(end, scale(arrive, -k2)), end)
   )
 }
 
-function buildOrbitPath(start: Pt, bounds: Box, mode: PathMode, avoid: Box): string {
+function buildOrbitPath(start: Pt, bounds: Box, mode: PathMode, avoid: Box, startTan?: Pt): string {
   const pad = 18
   const minDim = Math.min(bounds.width, bounds.height)
   const nPivots =
@@ -289,10 +355,10 @@ function buildOrbitPath(start: Pt, bounds: Box, mode: PathMode, avoid: Box): str
 
   let d = `M ${start.x.toFixed(1)} ${start.y.toFixed(1)}`
   let prev = start
-  let prevTan: Pt | null = null
+  let prevTan: Pt | null = startTan ? unit(startTan) : null
 
   if (pivots.length === 0) {
-    return appendSmoothLanding(d, start, null, avoid, bounds, pad)
+    return appendSmoothLanding(d, start, prevTan, avoid, bounds, pad)
   }
 
   for (const pivot of pivots) {
@@ -331,6 +397,7 @@ export function generateChaoticPath(opts: {
   bounds: Box
   avoid: Box
   mode: PathMode
+  startTan?: Pt
 }): string {
-  return buildOrbitPath(opts.start, opts.bounds, opts.mode, opts.avoid)
+  return buildOrbitPath(opts.start, opts.bounds, opts.mode, opts.avoid, opts.startTan)
 }

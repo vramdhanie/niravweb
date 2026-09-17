@@ -61,8 +61,8 @@ export default function ArticlePage() {
             I thought that gravitational basins look like Figure 2. The three white dots are
             “planets” not affected by each other’s gravity, and each coloured section is their
             respective gravitational basin. If we place an “asteroid” anywhere within the green
-            section (with initial velocity of 0), it will fall into the green planet… or so I
-            thought.
+            section (with initial velocity of 0), it will fall into the green planet… is what I thought
+            would happen. But I took a good pondering session...
           </p>
 
           <Figure
@@ -75,8 +75,8 @@ export default function ArticlePage() {
 
           <p>
             I completely negated the fact that all planets are influencing the gravitational field
-            which the asteroids are placed in. Meaning the asteroids could completely miss the
-            closest planet and orbit the system and could possibly collide with any of the planets.
+            which the asteroids are placed in. Meaning there is a very plausible chance where asteroids could completely miss the
+            closest planet and orbit the system and could possibly end up colliding with any of the planets.
             The closest planet doesn’t necessarily guarantee the asteroid colliding with it.
           </p>
           <p>
@@ -122,7 +122,7 @@ export default function ArticlePage() {
           <p>
             An optional map colours by collision time over{' '}
             <MathInline tex="[0,\, t_{\max}]" />. I basically added this just to see how it looks,
-            it’s cool.
+            and it’s pretty cool.
           </p>
 
           <Figure
@@ -135,8 +135,8 @@ export default function ArticlePage() {
 
           <p>
             An optional first-post-Newtonian geodesic flag exists since I was also curious. It is
-            geodesic motion in a prescribed static multi-mass potential, not general-relativistic
-            three-body physics.
+            geodesic motion in a prescribed static multi-mass potential. I am not using general-relativistic
+            three-body physics here.
           </p>
 
           <Figure
@@ -163,7 +163,7 @@ export default function ArticlePage() {
             I wanted to visualise higher dimensions of gravitational basins. The cube is the
             3-dimensional window that you can view. A 3-dimensional cross section. I originally
             thought that the set of rotations increases linearly as the dimensions increase. I soon
-            found out that I was very wrong once again.
+            found out that I was very wrong once again. 
           </p>
           <p>
             Translations in <MathInline tex="\mathbb{R}^{n}" /> have <MathInline tex="n" /> degrees of
@@ -183,10 +183,10 @@ export default function ArticlePage() {
           </p>
           <MathBlock tex="\dim SO(n) = \binom{n}{2} = \frac{n(n-1)}{2}." />
           <p>
-            That is quadratic in <MathInline tex="n" />. Each pair of coordinates spans a plane, and
+            That is quadratic in <MathInline tex="n" />. Each pair of coordinates spans a plane and
             each plane carries its own rotation angle. In 2D there is one plane and one angle. In 3D
             there are three planes (yaw, pitch, roll). In 4D there are already six independent
-            rotations. 10D has forty-five of them.
+            rotations. 10D has forty-five of them, and so on.
           </p>
           <p>
             That is why a 2D image of this system is a 2-flat (an affine 2-plane) in{' '}
@@ -211,13 +211,13 @@ export default function ArticlePage() {
 
           <h2>What the basins actually look like</h2>
           <p>
-            See Figures 1 and 5. I pretty much did simulations for one system: three equal masses on
-            an equilateral triangle. As I figured out, the rest-start collision map is not a tidy
-            Voronoi diagram. Close in, each planet has a compact capture region analogous to a Roche
+            See Figures 1 and 5. I pretty much did simulations for just one system: three equal masses on
+            the vertices of an equilateral triangle. As I figured out, the collision map is not a 
+            Voronoi diagram. If you zoom in, each planet has a compact capture region analogous to a Roche
             lobe. Far away the combined field is nearly that of a point mass, so a particle that
             starts at rest falls almost radially. Which planet the asteroid eventually hits is
             decided by tiny deflections as it threads the triangle. The far-field therefore looks
-            like radial stripes. Between those two regimes the boundary is very chaotic.
+            like radial stripes. Between those two effects, the boundary is very chaotic.
           </p>
           <p>
             That structure is a basin of attraction in configuration space (here the space of
@@ -228,16 +228,16 @@ export default function ArticlePage() {
             only red and blue”. Any neighbourhood of the edge contains all red, blue, and green.
           </p>
           <p>
-            I did not prove the Wada property to <MathInline tex="\varepsilon\text{--}\delta" />. I
-            learnt the definition by zooming in on a boundary in which the basins appear to
-            continuously keep appearing in the middle of a boundary. The images I obtained from this
+            I never proved the Wada property to <MathInline tex="\varepsilon\text{--}\delta" />. I
+            just observed this pattern by zooming in on a boundary in which the basins appear to
+            continuously keep appearing in between the boundaries. The images I obtained from this
             appear to follow Wada properties. The boundary is fractal in the practical sense that its
             apparent length grows under refinement and figuring out which planet an asteroid will hit
             if its initial position is on a boundary is unstable under arbitrarily small shifts of
-            the initial point. Therefore a sensitive dependence. See Figures 1 and 4.
+            the initial point. Therefore there is a sensitive dependence. See Figures 1 and 4.
           </p>
           <p>
-            Colouring by time-to-hit makes the slow layer obvious: the interiors of the lobes collide
+            Colouring by time-to-hit makes the slow layer very obvious. The interiors of the lobes collide
             quickly (red). The filamentary sea takes much longer (green/blue). See Figure 3.
           </p>
 
@@ -268,8 +268,8 @@ export default function ArticlePage() {
             See Figure 4. The relativistic flag was not the point of the programme, but it was the
             hardest piece of physics I had to get straight. What if the system was affected by
             relativistic motion? This was just another curious question I had and I wanted to see
-            what would happen. I tried my best to implement this, I am not entirely sure if it is
-            correct but things look different, which makes me think something works.
+            what it would change. I tried my best to implement this, I am not entirely sure if it is
+            implemented properly but things look different, so it did something.
           </p>
           <p>
             Exact multi-planet general relativity is not a closed-form metric. Einstein’s equations
@@ -325,10 +325,10 @@ export default function ArticlePage() {
             This is quite a poor model of orbital mechanics. The planets do not orbit each other, the
             asteroids start at rest, there is no radiation pressure, no oblateness, no third-body
             ephemeris, and the quantity of interest is the endpoint of a collision, not its
-            trajectory. I would not use it to design a transfer.
+            trajectory. Thus it is very unrealistic in that sense.
           </p>
           <p>
-            It is effectively a clean laboratory for chaotic scattering and basin boundaries. A
+            I built this programme for the chaotic scattering of masses and the visualisation of the gravitational basin boundaries. A
             deterministic Newtonian system whose long-term fate, as a function of initial position,
             is fractal and (in the three-colour case) Wada-like. That is the same mathematical
             species as other open Hamiltonian exit problems.
@@ -351,22 +351,21 @@ export default function ArticlePage() {
             that it is quadratic, not linear. Big misconception I believed.
           </p>
           <p>
-            I learnt that these systems aren’t as simple as Voronoi diagrams. It is a fractal basin
-            problem, and with three colours the boundary appears to behave like a Wada boundary. The
-            chaos here is not random either. It is deterministic motion whose endpoint, as a map
-            from initial data, is unstable at every scale.
+            I learnt that these systems aren’t as simple as Voronoi diagrams. They are fractals where
+            the boundary appears to behave like a Wada boundary. The chaos here is not random either. 
+            It is deterministic motion whose endpoint, as a map from initial data, is unstable at every scale.
           </p>
           <p>
-            The 1PN geodesic made concrete that relativistic motion is motion in a metric, that the
+            The 1PN geodesic made it clear that relativistic motion is motion in a metric. The
             Newtonian limit is a controlled expansion in <MathInline tex="v/c" /> and{' '}
-            <MathInline tex="\Phi/c^{2}" />, and that a multi-mass spacetime is not a sum of one-body
-            solutions. Implementing it meant accepting an approximate geodesic law and stating
-            clearly where that approximation stops being a small correction.
+            <MathInline tex="\Phi/c^{2}" />, and that a spacetime with multiple masses is not as simple as the 
+            sum of one-body solutions. Implementing required me to use an approximate geodesic law and stating
+            clearly where that approximation stops being a small correction. 
           </p>
           <p>
             On the engineering side I learnt that a visualisation of high-dimensional data is only as
             honest as the cross section you chose, and that it all pretty much depends on your frame
-            of reference.
+            of reference. You can't just choose a random cross section and expect the results to be meaningful.
           </p>
 
           <Figure
@@ -388,30 +387,60 @@ export default function ArticlePage() {
 
           <h2>References</h2>
           <p className="text-sm text-[var(--primary-light)]">
-            These pages helped a lot with researching for this project.
+            These pages helped a lot with researching for this project. Also fun to read.
           </p>
           <ul>
             <li>
-              <a href="https://en.wikipedia.org/wiki/Lakes_of_Wada" target="_blank" rel="noopener noreferrer">
-                Lakes of Wada
-              </a>{' '}
-              — Wikipedia
-            </li>
-            <li>
               <a
-                href="https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation"
+                href="https://web.archive.org/web/20150204231934/http://www-history.mcs.st-and.ac.uk/Indexes/Math_Physics.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Newton’s law of universal gravitation
+                History Topics: Mathematical Physics Index
               </a>{' '}
-              — Wikipedia
+              — MacTutor History of Mathematics, University of St Andrews
             </li>
             <li>
-              <a href="https://en.wikipedia.org/wiki/General_relativity" target="_blank" rel="noopener noreferrer">
-                General relativity
+              <a
+                href="https://books.google.com/books?id=yhN9CgAAQBAJ&pg=PT4#v=onepage&q&f=false"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Relativity: The Special and General Theory
               </a>{' '}
-              — Wikipedia
+              — Albert Einstein
+            </li>
+            <li>
+              <a href="https://arxiv.org/html/1502.04632v1" target="_blank" rel="noopener noreferrer">
+                Testing Chern-Simons modified gravity with orbiting superconductive gravity gradiometers
+              </a>{' '}
+              — Li-E Qiang and Peng Xu, arXiv:1502.04632, 2015
+            </li>
+            <li>
+              <a
+                href="https://link.springer.com/article/10.1140/epjc/s10052-026-16139-4"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Post-Newtonian N-body dynamics in Extended Theories of Gravity
+              </a>{' '}
+              — Antonio Tedesco, The European Physical Journal C, 2026
+            </li>
+            <li>
+              <a
+                href="https://www.jstage.jst.go.jp/article/tmj1911/12/0/12_0_43/_article"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Theory of Continuous Set of Points
+              </a>{' '}
+              — Kunizô Yoneyama, Tohoku Mathematical Journal, 1917
+            </li>
+            <li>
+              <a href="https://escholarship.org/uc/item/3j38277x" target="_blank" rel="noopener noreferrer">
+                On the creation of Wada basins in interval maps through fixed point tangent bifurcation
+              </a>{' '}
+              — Romulus Breban and Helena E. Nusse, Physica D, 2005
             </li>
             <li>
               <a href="https://mathworld.wolfram.com/SpecialOrthogonalGroup.html" target="_blank" rel="noopener noreferrer">
