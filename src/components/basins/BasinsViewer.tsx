@@ -7,6 +7,7 @@ import {
   loadModel,
   palette as buildPalette,
   sampleValues,
+  timeHeatColour,
   type BasinIndexEntry,
   type BasinModel,
 } from '@/lib/basins'
@@ -48,6 +49,8 @@ export default function BasinsViewer() {
   const [slice, setSlice] = useState(0)
   const [pointSize, setPointSize] = useState(2.6)
   const [planetsOn, setPlanetsOn] = useState<boolean[]>([])
+  const [coloursOn, setColoursOn] = useState<boolean[]>([])
+  const [colourByTime, setColourByTime] = useState(false)
   const [planeSets, setPlaneSets] = useState<PlaneSets>({ yz: new Set(), xz: new Set(), xy: new Set() })
   const [preview, setPreview] = useState<Preview>(null)
   const [visibleCount, setVisibleCount] = useState(0)
@@ -59,8 +62,8 @@ export default function BasinsViewer() {
     setSize?: (n: number) => void
     dispose?: () => void
   }>({})
-  const ctrl = useRef({ slice, planeSets, preview, planetsOn })
-  ctrl.current = { slice, planeSets, preview, planetsOn }
+  const ctrl = useRef({ slice, planeSets, preview, planetsOn, coloursOn, colourByTime })
+  ctrl.current = { slice, planeSets, preview, planetsOn, coloursOn, colourByTime }
 
   const r = model?.meta.resolution ?? 0
 
@@ -100,6 +103,8 @@ export default function BasinsViewer() {
         setModel(m)
         setSlice(Math.floor((res - 1) / 2)) // central slice (w ≈ 0)
         setPlanetsOn(m.meta.planets.map(() => true))
+        setColoursOn(m.meta.planets.map(() => true))
+        if (!m.time) setColourByTime(false)
         setPlaneSets({ yz: fullSet(res), xz: fullSet(res), xy: fullSet(res) })
         setStatus('ready')
       } catch (e) {
@@ -126,7 +131,7 @@ export default function BasinsViewer() {
       const { OrbitControls } = await import('three/examples/jsm/controls/OrbitControls.js')
       if (disposed) return
 
-      const { meta, hit } = model
+      const { meta, hit, time } = model
       const res = meta.resolution
       const samples = sampleValues(meta.halfExtent, res)
       const pal = buildPalette(meta)
@@ -199,7 +204,8 @@ export default function BasinsViewer() {
 
       // ---- rebuild the visible slice into the point buffer ----
       const rebuild = () => {
-        const { slice: l0, planeSets: ps, preview: pv, planetsOn: on } = ctrl.current
+        const { slice: l0, planeSets: ps, preview: pv, coloursOn: colOn, colourByTime: byTime } =
+          ctrl.current
         const r2 = res * res
         let count = 0
         for (let i = 0; i < res; i++) {
@@ -217,13 +223,14 @@ export default function BasinsViewer() {
                 vis = pv.axis === 0 ? i === pv.index : pv.axis === 1 ? j === pv.index : k === pv.index
               }
               if (!vis) continue
-              const h = hit[base + k * res]
-              if (h < 0 || on[h] === false) continue // timeout, or planet toggled off
+              const idx = base + k * res
+              const h = hit[idx]
+              if (h < 0 || colOn[h] === false) continue // timeout, or colour isolated off
               const o = count * 3
               posArr[o] = x
               posArr[o + 1] = y
               posArr[o + 2] = samples[k]
-              const c = pal[h]
+              const c = byTime && time ? timeHeatColour(time[idx] / 255) : pal[h]
               colArr[o] = c[0]
               colArr[o + 1] = c[1]
               colArr[o + 2] = c[2]
@@ -314,8 +321,11 @@ export default function BasinsViewer() {
   // ---- push control changes into the scene --------------------------------
   useEffect(() => {
     sceneApi.current.rebuild?.()
+  }, [slice, planeSets, preview, coloursOn, colourByTime])
+
+  useEffect(() => {
     sceneApi.current.updatePlanets?.()
-  }, [slice, planeSets, preview, planetsOn])
+  }, [slice, planetsOn])
 
   useEffect(() => {
     sceneApi.current.setSize?.(pointSize)
@@ -446,6 +456,46 @@ export default function BasinsViewer() {
               ))}
             </div>
           </div>
+
+          <div>
+            <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-white/50">
+              Colours
+            </span>
+            <div className="space-y-1.5">
+              {legend.map((p, i) => (
+                <label key={i} className="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={coloursOn[i] ?? true}
+                    onChange={(e) =>
+                      setColoursOn((prev) => {
+                        const next = [...prev]
+                        next[i] = e.target.checked
+                        return next
+                      })
+                    }
+                    className="accent-[var(--secondary)]"
+                  />
+                  <span
+                    className="inline-block h-3 w-3 rounded-full"
+                    style={{ background: `rgb(${p.color[0]},${p.color[1]},${p.color[2]})` }}
+                  />
+                  <span className="text-white/75">Basin {i + 1}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <label className={`flex items-center gap-2 ${model?.time ? 'cursor-pointer' : 'opacity-50'}`}>
+            <input
+              type="checkbox"
+              checked={colourByTime}
+              disabled={!model?.time}
+              onChange={(e) => setColourByTime(e.target.checked)}
+              className="accent-[var(--secondary)]"
+            />
+            <span className="text-white/75">Time to hit</span>
+          </label>
 
           {r > 0 && (
             <div>

@@ -10,10 +10,12 @@ import {
   createRock,
   pushPointerSample,
   hitTest,
-  isInteractive,
+  isHardUI,
+  isIBeamAt,
   measureWalls,
   resolveHeldKnocks,
   stepRocks,
+  type AABB,
   type PointerSample,
   type Rock,
 } from '@/lib/asteroids'
@@ -35,6 +37,8 @@ export default function AsteroidField() {
   const samplesRef = useRef<PointerSample[]>([])
   const lastHeldTRef = useRef(0)
   const runningRef = useRef(false)
+  const prevWallsRef = useRef<AABB[]>([])
+  const scrollingRef = useRef(false)
 
   const paint = () => {
     for (const rock of rocksRef.current) {
@@ -53,15 +57,23 @@ export default function AsteroidField() {
   const loop = (now: number) => {
     const dt = Math.min(0.032, (now - (lastRef.current || now)) / 1000)
     lastRef.current = now
-    stepRocks(rocksRef.current, dt, {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    }, measureWalls())
+    const walls = measureWalls()
+    stepRocks(
+      rocksRef.current,
+      dt,
+      {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      },
+      walls,
+      prevWallsRef.current,
+    )
+    prevWallsRef.current = walls
     paint()
     const active = rocksRef.current.some(
       (r) => r.held || Math.hypot(r.vx, r.vy) > 0.4 || Math.abs(r.spin) > 0.02,
     )
-    if (active) {
+    if (active || scrollingRef.current) {
       rafRef.current = requestAnimationFrame(loop)
     } else {
       runningRef.current = false
@@ -78,11 +90,12 @@ export default function AsteroidField() {
     const onDown = (e: PointerEvent) => {
       if (e.button !== 0) return
       if (heldIdRef.current != null) return
-      if (isInteractive(e.target)) return
+      if (isHardUI(e.target)) return
 
       const hit = hitTest(rocksRef.current, e.clientX, e.clientY)
       let rock: Rock | undefined = hit ?? undefined
       if (!rock) {
+        if (isIBeamAt(e.clientX, e.clientY)) return
         if (rocksRef.current.length >= ASTEROID_MAX) {
           const victim = rocksRef.current
             .filter((r) => !r.held)
@@ -164,19 +177,30 @@ export default function AsteroidField() {
       kick()
     }
 
+    let scrollTimer = 0
+    const onScroll = () => {
+      scrollingRef.current = true
+      window.clearTimeout(scrollTimer)
+      scrollTimer = window.setTimeout(() => {
+        scrollingRef.current = false
+      }, 140)
+      kick()
+    }
+
     window.addEventListener('pointerdown', onDown)
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
     window.addEventListener('pointercancel', onUp)
-    window.addEventListener('scroll', kick, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', kick)
     return () => {
       window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onUp)
-      window.removeEventListener('scroll', kick)
+      window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', kick)
+      window.clearTimeout(scrollTimer)
       cancelAnimationFrame(rafRef.current)
       runningRef.current = false
       endDragChrome()

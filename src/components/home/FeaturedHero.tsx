@@ -96,7 +96,7 @@ export default function FeaturedHero({
         </p>
         <h1
           ref={titleRef}
-          className="text-4xl font-bold leading-tight tracking-tight md:text-6xl"
+          className="font-display text-4xl font-bold leading-tight tracking-tight md:text-6xl"
         >
           {title}
         </h1>

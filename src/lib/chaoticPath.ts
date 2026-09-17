@@ -106,8 +106,8 @@ function handleLen(a: Pt, b: Pt, r: number) {
 }
 
 function cubicCutsInterior(p0: Pt, c1: Pt, c2: Pt, p3: Pt, box: Box) {
-  for (let i = 1; i <= 20; i++) {
-    const t = i / 21
+  for (let i = 1; i <= 32; i++) {
+    const t = i / 33
     const u = 1 - t
     const p = {
       x: u * u * u * p0.x + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t * t * t * p3.x,
@@ -127,55 +127,108 @@ function arcCutsInterior(c: Pt, r: number, a0: number, a1: number, box: Box) {
   return false
 }
 
-function landingFrom(from: Pt, b: Box): { end: Pt; outward: Pt } {
+/** Random point on one edge, inset from the corners. */
+function landingOnEdge(b: Box, edge: number): { end: Pt; outward: Pt } {
   const inset = 6
   const left = b.x
   const right = b.x + b.width
   const top = b.y
   const bottom = b.y + b.height
-  const xOn = from.x >= left && from.x <= right
-  const yOn = from.y >= top && from.y <= bottom
+  const xSpan = Math.max(right - left - 2 * inset, 0)
+  const ySpan = Math.max(bottom - top - 2 * inset, 0)
+  if (edge === 0) {
+    return { end: { x: left + inset + Math.random() * xSpan, y: top }, outward: { x: 0, y: -1 } }
+  }
+  if (edge === 1) {
+    return { end: { x: right, y: top + inset + Math.random() * ySpan }, outward: { x: 1, y: 0 } }
+  }
+  if (edge === 2) {
+    return { end: { x: left + inset + Math.random() * xSpan, y: bottom }, outward: { x: 0, y: 1 } }
+  }
+  return { end: { x: left, y: top + inset + Math.random() * ySpan }, outward: { x: -1, y: 0 } }
+}
 
-  if (!xOn && yOn) {
-    if (from.x < left) {
-      return { end: { x: left, y: clamp(from.y, top + inset, bottom - inset) }, outward: { x: -1, y: 0 } }
-    }
-    return { end: { x: right, y: clamp(from.y, top + inset, bottom - inset) }, outward: { x: 1, y: 0 } }
+function shuffledEdges(): number[] {
+  const e = [0, 1, 2, 3]
+  for (let i = e.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[e[i], e[j]] = [e[j], e[i]]
   }
-  if (xOn && !yOn) {
-    if (from.y < top) {
-      return { end: { x: clamp(from.x, left + inset, right - inset), y: top }, outward: { x: 0, y: -1 } }
-    }
-    return { end: { x: clamp(from.x, left + inset, right - inset), y: bottom }, outward: { x: 0, y: 1 } }
+  return e
+}
+
+/**
+ * Circle through P and E whose tangent at P is T.
+ * dir +1 follows increasing angle (clockwise on a y-down canvas), matching `arc()`.
+ */
+function fitArc(
+  P: Pt,
+  T: Pt,
+  E: Pt,
+  dir: 1 | -1
+): { c: Pt; r: number; a0: number; a1: number } | null {
+  const tan = unit(T)
+  const N = dir === 1 ? { x: -tan.y, y: tan.x } : { x: tan.y, y: -tan.x }
+  const qx = P.x - E.x
+  const qy = P.y - E.y
+  const den = 2 * (qx * N.x + qy * N.y)
+  if (Math.abs(den) < 1e-4) return null
+  const r = -(qx * qx + qy * qy) / den
+  if (r < 40 || r > 420) return null
+  const c = { x: P.x + N.x * r, y: P.y + N.y * r }
+  let a0 = Math.atan2(P.y - c.y, P.x - c.x)
+  let a1 = Math.atan2(E.y - c.y, E.x - c.x)
+  if (dir === 1) {
+    while (a1 <= a0 + 1e-4) a1 += Math.PI * 2
+  } else {
+    while (a1 >= a0 - 1e-4) a1 -= Math.PI * 2
   }
-  if (!xOn && !yOn) {
-    const dL = Math.abs(from.x - left)
-    const dR = Math.abs(from.x - right)
-    const dT = Math.abs(from.y - top)
-    const dB = Math.abs(from.y - bottom)
-    const cornerX = dL < dR ? left : right
-    const cornerY = dT < dB ? top : bottom
-    if (Math.min(dL, dR) <= Math.min(dT, dB)) {
-      return {
-        end: { x: cornerX, y: clamp(cornerY === top ? top + inset : bottom - inset, top + inset, bottom - inset) },
-        outward: { x: cornerX === left ? -1 : 1, y: 0 },
+  const delta = a1 - a0
+  if (Math.abs(delta) < 0.12 || Math.abs(delta) > Math.PI * 0.95) return null
+  return { c, r, a0, a1 }
+}
+
+function landingArcOk(
+  fitted: { c: Pt; r: number; a0: number; a1: number },
+  end: Pt,
+  outward: Pt,
+  avoid: Box
+) {
+  if (arcCutsInterior(fitted.c, fitted.r, fitted.a0, fitted.a1, avoid)) return false
+  const before = polar(fitted.c, fitted.r, fitted.a1 - Math.sign(fitted.a1 - fitted.a0) * 0.1)
+  return (before.x - end.x) * outward.x + (before.y - end.y) * outward.y > 1.5
+}
+
+function tryLandingArc(from: Pt, tan: Pt, end: Pt, outward: Pt, avoid: Box) {
+  for (const dir of [1, -1] as const) {
+    const fitted = fitArc(from, tan, end, dir)
+    if (!fitted) continue
+    if (!landingArcOk(fitted, end, outward, avoid)) continue
+    return arc(fitted.r, fitted.a1 - fitted.a0, dir, end)
+  }
+  return null
+}
+
+function landingArcs(prev: Pt, tan: Pt, end: Pt, outward: Pt, avoid: Box): string | null {
+  const direct = tryLandingArc(prev, tan, end, outward, avoid)
+  if (direct) return direct
+
+  for (const dir of [1, -1] as const) {
+    const N = dir === 1 ? { x: -tan.y, y: tan.x } : { x: tan.y, y: -tan.x }
+    for (const r of [50, 72, 96, 130, 170]) {
+      const c = add(prev, scale(N, r))
+      const a0 = Math.atan2(prev.y - c.y, prev.x - c.x)
+      for (const sweep of [0.4, 0.7, 1.05, 1.4]) {
+        const a1 = a0 + sweep * (dir === 1 ? 1 : -1)
+        if (arcCutsInterior(c, r, a0, a1, avoid)) continue
+        const mid = polar(c, r, a1)
+        if (inInterior(mid, inflate(avoid, 14), 0)) continue
+        const rest = tryLandingArc(mid, orbitTangent(a1, dir), end, outward, avoid)
+        if (rest) return arc(r, a1 - a0, dir, mid) + rest
       }
     }
-    return {
-      end: { x: clamp(cornerX === left ? left + inset : right - inset, left + inset, right - inset), y: cornerY },
-      outward: { x: 0, y: cornerY === top ? -1 : 1 },
-    }
   }
-
-  const dL = from.x - left
-  const dR = right - from.x
-  const dT = from.y - top
-  const dB = bottom - from.y
-  const m = Math.min(dL, dR, dT, dB)
-  if (m === dL) return { end: { x: left, y: clamp(from.y, top + inset, bottom - inset) }, outward: { x: -1, y: 0 } }
-  if (m === dR) return { end: { x: right, y: clamp(from.y, top + inset, bottom - inset) }, outward: { x: 1, y: 0 } }
-  if (m === dT) return { end: { x: clamp(from.x, left + inset, right - inset), y: top }, outward: { x: 0, y: -1 } }
-  return { end: { x: clamp(from.x, left + inset, right - inset), y: bottom }, outward: { x: 0, y: 1 } }
+  return null
 }
 
 function appendSmoothLanding(
@@ -183,77 +236,36 @@ function appendSmoothLanding(
   prev: Pt,
   prevTan: Pt | null,
   avoid: Box,
-  bounds: Box,
-  pad: number
+  _bounds: Box,
+  _pad: number
 ): string {
-  const { end, outward } = landingFrom(prev, avoid)
-  const tan = unit(prevTan ?? { x: end.x - prev.x, y: end.y - prev.y })
-  const inward = { x: -outward.x, y: -outward.y }
-  const chord = Math.max(dist(prev, end), 1)
-  const k = clamp(chord * 0.45, 48, 180)
-
-  let arrive = unit(add(scale(tan, 0.72), scale(inward, 0.28)))
-  if (arrive.x * tan.x + arrive.y * tan.y < 0.15) {
-    arrive = tan
+  const tan = unit(prevTan ?? { x: 1, y: 0 })
+  for (const edge of shuffledEdges()) {
+    const { end, outward } = landingOnEdge(avoid, edge)
+    const arcs = landingArcs(prev, tan, end, outward, avoid)
+    if (arcs) return d + arcs
   }
 
-  let c1 = add(prev, scale(tan, k))
-  let c2 = add(end, scale(arrive, -k))
-  if (!cubicCutsInterior(prev, c1, c2, end, avoid)) {
-    return d + cubic(c1, c2, end)
-  }
+  const { end, outward } = landingOnEdge(avoid, shuffledEdges()[0])
+  const arrive = unit(add(scale(tan, 0.85), scale({ x: -outward.x, y: -outward.y }, 0.15)))
+  const k = handleLen(prev, end, 72)
+  const c1 = add(prev, scale(tan, k))
+  const c2 = add(end, scale(arrive, -k))
+  if (!cubicCutsInterior(prev, c1, c2, end, avoid)) return d + cubic(c1, c2, end)
 
-  const centre = boxCentre(avoid)
-  const away = unit({ x: (prev.x + end.x) / 2 - centre.x, y: (prev.y + end.y) / 2 - centre.y })
-  const mid = clampOutside(
-    {
-      x: (prev.x + end.x) / 2 + away.x * clamp(chord * 0.22, 28, 64),
-      y: (prev.y + end.y) / 2 + away.y * clamp(chord * 0.22, 28, 64),
-    },
-    bounds,
-    pad,
-    avoid,
-    16
-  )
-  const midTan = unit(add(tan, unit({ x: end.x - prev.x, y: end.y - prev.y })))
-  const k1 = handleLen(prev, mid, 48)
-  const k2 = handleLen(mid, end, 48)
-  c1 = add(prev, scale(tan, k1))
-  const cJoinIn = add(mid, scale(midTan, -k1))
-  const cJoinOut = add(mid, scale(midTan, k2))
-  c2 = add(end, scale(unit(add(scale(midTan, 0.6), scale(inward, 0.4))), -k2))
-  if (!cubicCutsInterior(prev, c1, cJoinIn, mid, avoid) && !cubicCutsInterior(mid, cJoinOut, c2, end, avoid)) {
-    return d + cubic(c1, cJoinIn, mid) + cubic(cJoinOut, c2, end)
-  }
-
-  const hover = clampOutside(
-    { x: end.x + outward.x * 36, y: end.y + outward.y * 36 },
-    bounds,
-    pad,
-    avoid,
-    12
-  )
-  const kh = handleLen(prev, hover, 48)
-  const ke = handleLen(hover, end, 48)
-  const hoverTan = unit({ x: -outward.x, y: -outward.y })
+  const away = unit({
+    x: (prev.x + end.x) / 2 - boxCentre(avoid).x,
+    y: (prev.y + end.y) / 2 - boxCentre(avoid).y,
+  })
+  const hover = { x: (prev.x + end.x) / 2 + away.x * 64, y: (prev.y + end.y) / 2 + away.y * 64 }
+  const k1 = handleLen(prev, hover, 72)
+  const k2 = handleLen(hover, end, 72)
+  const join = unit(add(scale(tan, 0.7), scale(unit({ x: end.x - hover.x, y: end.y - hover.y }), 0.3)))
   return (
     d +
-    cubic(add(prev, scale(tan, kh)), add(hover, scale(hoverTan, -kh)), hover) +
-    cubic(add(hover, scale(hoverTan, ke)), add(end, scale(hoverTan, -ke)), end)
+    cubic(add(prev, scale(tan, k1)), add(hover, scale(join, -k1)), hover) +
+    cubic(add(hover, scale(join, k2)), add(end, scale(arrive, -k2)), end)
   )
-}
-
-function clampOutside(p: Pt, bounds: Box, pad: number, avoid: Box, gap: number): Pt {
-  let x = clamp(p.x, bounds.x + pad, bounds.x + bounds.width - pad)
-  let y = clamp(p.y, bounds.y + pad, bounds.y + bounds.height - pad)
-  if (inInterior({ x, y }, inflate(avoid, gap), 0)) {
-    const { end, outward } = landingFrom({ x, y }, avoid)
-    x = end.x + outward.x * (gap + 8)
-    y = end.y + outward.y * (gap + 8)
-    x = clamp(x, bounds.x + pad, bounds.x + bounds.width - pad)
-    y = clamp(y, bounds.y + pad, bounds.y + bounds.height - pad)
-  }
-  return { x, y }
 }
 
 function buildOrbitPath(start: Pt, bounds: Box, mode: PathMode, avoid: Box): string {

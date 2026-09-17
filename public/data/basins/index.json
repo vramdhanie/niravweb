@@ -5,6 +5,7 @@
       "name": "Newtonian",
       "file": "newtonian.bin",
       "meta": "newtonian.json",
+      "time": "newtonian.time.bin",
       "relativistic": false
     }
   ]

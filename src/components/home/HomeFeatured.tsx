@@ -70,7 +70,7 @@ export default function HomeFeatured({ title, eyebrow, repo, author }: Props) {
     }
     const m = measure()
     if (!m) return
-    const start = pointBelow(localBox(m.startEl, m.wrap), 12)
+    const start = pointBelow(localBox(m.startEl, m.wrap), 0)
     const d = generateChaoticPath({
       start,
       bounds: m.bounds,

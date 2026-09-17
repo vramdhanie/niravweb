@@ -49,12 +49,12 @@ export default function HomePage() {
 
       <section id="visualizer" className="scroll-mt-24 bg-[color:rgba(0,0,0,0.02)] px-4 py-16 md:py-20">
         <div className="mx-auto max-w-[1000px] text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-[var(--primary-dark)] md:text-3xl">
-            Interactive visualizer
+          <h2 className="font-display text-2xl font-bold tracking-tight text-[var(--primary-dark)] md:text-3xl">
+            Interactive visualiser
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-[var(--primary-light)]">
-            Explore the 4-D collision basins live — rotate the cube, slide through the fourth
-            dimension, and isolate coordinate planes, right in the browser.
+            Explore the 4-D basins for the Restricted 4 Body System. 6.25 million asteroids were
+            simulated.
           </p>
 
           <div className="mt-8 text-left">
@@ -65,7 +65,7 @@ export default function HomePage() {
 
       <section className="px-4 py-16 md:py-20">
         <div className="mx-auto max-w-[1170px]">
-          <h2 className="text-center text-2xl font-bold tracking-tight text-[var(--primary-dark)] md:text-3xl">
+          <h2 className="font-display text-center text-2xl font-bold tracking-tight text-[var(--primary-dark)] md:text-3xl">
             Gallery
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-center text-[var(--primary-light)]">
@@ -106,7 +106,7 @@ export default function HomePage() {
 
       <section className="bg-[color:rgba(0,0,0,0.02)] px-4 py-16 md:py-20">
         <div className="mx-auto max-w-[1000px] text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-[var(--primary-dark)] md:text-3xl">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-[var(--primary-dark)] md:text-3xl">
             Built with
           </h2>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">

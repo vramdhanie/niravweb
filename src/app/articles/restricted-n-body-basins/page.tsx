@@ -30,7 +30,7 @@ export default function ArticlePage() {
           <p className="text-xs font-bold uppercase tracking-[var(--main-spacing)] text-[var(--secondary)]">
             Mapping Chaotic Gravitational Basins
           </p>
-          <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--primary-dark)] md:text-4xl">
+          <h1 className="font-display mt-2 text-3xl font-bold leading-tight tracking-tight text-[var(--primary-dark)] md:text-4xl">
             Restricted <MathInline tex="n" />-body basins in <MathInline tex="n" /> dimensions
           </h1>
           <p className="mt-3 text-[var(--primary-light)]">

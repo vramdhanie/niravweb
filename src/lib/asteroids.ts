@@ -49,9 +49,58 @@ export function createRock(id: number, x: number, y: number): Rock {
   }
 }
 
-export function isInteractive(target: EventTarget | null): boolean {
-  if (!(target instanceof Element)) return false
-  return Boolean(target.closest('a, button, input, textarea, select, [role="button"]'))
+const NO_SPAWN_CLOSEST =
+  'a, button, input, textarea, select, label, summary, canvas, [role="button"], [data-asteroid-wall]'
+
+/** Links, controls, and bounce walls — never spawn or grab through these. */
+export function isHardUI(target: EventTarget | null): boolean {
+  let el: EventTarget | null = target
+  if (el instanceof Text) el = el.parentElement
+  if (!(el instanceof Element)) return false
+  return Boolean(el.closest(NO_SPAWN_CLOSEST))
+}
+
+/** True only when the pointer is over a glyph (I-beam), not the padding around text. */
+export function isIBeamAt(x: number, y: number): boolean {
+  try {
+    const doc = document as Document & {
+      caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null
+      caretRangeFromPoint?: (x: number, y: number) => Range | null
+    }
+    let node: Node | null = null
+    let offset = 0
+    const pos = doc.caretPositionFromPoint?.(x, y)
+    if (pos) {
+      node = pos.offsetNode
+      offset = pos.offset
+    } else {
+      const range = doc.caretRangeFromPoint?.(x, y)
+      if (range) {
+        node = range.startContainer
+        offset = range.startOffset
+      }
+    }
+    if (!node || node.nodeType !== Node.TEXT_NODE) return false
+    const text = node.textContent ?? ''
+    if (!text.trim()) return false
+    const parent = node.parentElement
+    if (parent && getComputedStyle(parent).userSelect === 'none') return false
+
+    const len = text.length
+    if (len === 0) return false
+    const probe = document.createRange()
+    const indices = [Math.min(Math.max(offset, 0), len - 1), Math.max(0, offset - 1)]
+    for (const i of indices) {
+      probe.setStart(node, i)
+      probe.setEnd(node, Math.min(i + 1, len))
+      for (const rect of probe.getClientRects()) {
+        if (x >= rect.left - 2 && x <= rect.right + 2 && y >= rect.top && y <= rect.bottom) return true
+      }
+    }
+  } catch {
+    /* some browsers throw if the point is off-document */
+  }
+  return false
 }
 
 export function hitTest(rocks: Rock[], x: number, y: number): Rock | null {
@@ -136,10 +185,17 @@ export function stepRocks(
   dt: number,
   viewport: { width: number; height: number },
   walls: AABB[],
+  prevWalls: AABB[] = [],
 ) {
   if (dt <= 0) return
   const r = ASTEROID_RADIUS
   const damp = Math.exp(-DRAG * dt)
+  const wallsMoved =
+    prevWalls.length === walls.length &&
+    walls.some((w, i) => {
+      const p = prevWalls[i]
+      return p && (Math.abs(w.x - p.x) > 0.2 || Math.abs(w.y - p.y) > 0.2)
+    })
 
   for (const rock of rocks) {
     if (rock.held) {
@@ -173,12 +229,14 @@ export function stepRocks(
   }
 
   const holding = rocks.some((rock) => rock.held)
-  const passes = holding ? 5 : 2
+  const passes = holding || wallsMoved ? 5 : 2
   for (let pass = 0; pass < passes; pass++) {
     for (const rock of rocks) {
       if (rock.held) continue
       bounceViewport(rock, viewport, r)
-      for (const wall of walls) bounceAabb(rock, wall, r)
+      for (let i = 0; i < walls.length; i++) {
+        bounceAabb(rock, walls[i], r, dt, prevWalls[i])
+      }
     }
     collidePairs(rocks, r)
   }
@@ -213,7 +271,45 @@ function bounceViewport(rock: Rock, viewport: { width: number; height: number },
   }
 }
 
-function bounceAabb(rock: Rock, box: AABB, r: number) {
+function circleHitsAabb(x: number, y: number, r: number, box: AABB) {
+  const cx = clamp(x, box.x, box.x + box.width)
+  const cy = clamp(y, box.y, box.y + box.height)
+  const dx = x - cx
+  const dy = y - cy
+  if (dx * dx + dy * dy < r * r) return true
+  return (
+    dx === 0 &&
+    dy === 0 &&
+    x >= box.x &&
+    x <= box.x + box.width &&
+    y >= box.y &&
+    y <= box.y + box.height
+  )
+}
+
+function bounceAabb(rock: Rock, box: AABB, r: number, dt: number, prev?: AABB) {
+  const wvxRaw = prev && dt > 1e-4 ? (box.x - prev.x) / dt : 0
+  const wvyRaw = prev && dt > 1e-4 ? (box.y - prev.y) / dt : 0
+  const wvx = clamp(wvxRaw, -900, 900)
+  const wvy = clamp(wvyRaw, -900, 900)
+  const moving = Math.abs(wvx) > 0.5 || Math.abs(wvy) > 0.5
+
+  if (prev && moving && !circleHitsAabb(rock.x, rock.y, r, box)) {
+    const ux = Math.min(prev.x, box.x)
+    const uy = Math.min(prev.y, box.y)
+    const swept: AABB = {
+      x: ux,
+      y: uy,
+      width: Math.max(prev.x + prev.width, box.x + box.width) - ux,
+      height: Math.max(prev.y + prev.height, box.y + box.height) - uy,
+    }
+    if (circleHitsAabb(rock.x, rock.y, r, swept)) {
+      placeOnLeadingFace(rock, box, r, wvx, wvy)
+      applyWallImpulse(rock, leadingNormal(wvx, wvy), wvx, wvy)
+      return
+    }
+  }
+
   const left = box.x
   const right = box.x + box.width
   const top = box.y
@@ -225,32 +321,33 @@ function bounceAabb(rock: Rock, box: AABB, r: number) {
   let d2 = nx * nx + ny * ny
 
   if (d2 < 1e-8) {
-    const dl = rock.x - left
-    const dr = right - rock.x
-    const dt = rock.y - top
-    const db = bottom - rock.y
-    const min = Math.min(dl, dr, dt, db)
-    if (min === dl) {
-      nx = -1
-      ny = 0
-      rock.x = left - r
-    } else if (min === dr) {
-      nx = 1
-      ny = 0
-      rock.x = right + r
-    } else if (min === dt) {
-      nx = 0
-      ny = -1
-      rock.y = top - r
+    if (moving) {
+      placeOnLeadingFace(rock, box, r, wvx, wvy)
+      applyWallImpulse(rock, leadingNormal(wvx, wvy), wvx, wvy)
     } else {
-      nx = 0
-      ny = 1
-      rock.y = bottom + r
-    }
-    const vn = rock.vx * nx + rock.vy * ny
-    if (vn < 0) {
-      rock.vx -= (1 + REST_WALL) * vn * nx
-      rock.vy -= (1 + REST_WALL) * vn * ny
+      const dl = rock.x - left
+      const dr = right - rock.x
+      const dTop = rock.y - top
+      const db = bottom - rock.y
+      const min = Math.min(dl, dr, dTop, db)
+      if (min === dl) {
+        nx = -1
+        ny = 0
+        rock.x = left - r
+      } else if (min === dr) {
+        nx = 1
+        ny = 0
+        rock.x = right + r
+      } else if (min === dTop) {
+        nx = 0
+        ny = -1
+        rock.y = top - r
+      } else {
+        nx = 0
+        ny = 1
+        rock.y = bottom + r
+      }
+      applyWallImpulse(rock, { x: nx, y: ny }, wvx, wvy)
     }
     return
   }
@@ -263,10 +360,30 @@ function bounceAabb(rock: Rock, box: AABB, r: number) {
   const pen = r - d
   rock.x += nx * pen
   rock.y += ny * pen
-  const vn = rock.vx * nx + rock.vy * ny
-  if (vn < 0) {
-    rock.vx -= (1 + REST_WALL) * vn * nx
-    rock.vy -= (1 + REST_WALL) * vn * ny
+  applyWallImpulse(rock, { x: nx, y: ny }, wvx, wvy)
+}
+
+function leadingNormal(wvx: number, wvy: number): { x: number; y: number } {
+  if (Math.abs(wvy) >= Math.abs(wvx)) return { x: 0, y: wvy >= 0 ? 1 : -1 }
+  return { x: wvx >= 0 ? 1 : -1, y: 0 }
+}
+
+function placeOnLeadingFace(rock: Rock, box: AABB, r: number, wvx: number, wvy: number) {
+  const n = leadingNormal(wvx, wvy)
+  if (n.x < 0) rock.x = box.x - r
+  else if (n.x > 0) rock.x = box.x + box.width + r
+  if (n.y < 0) rock.y = box.y - r
+  else if (n.y > 0) rock.y = box.y + box.height + r
+}
+
+function applyWallImpulse(rock: Rock, n: { x: number; y: number }, wvx: number, wvy: number) {
+  const vn = rock.vx * n.x + rock.vy * n.y
+  const wallN = wvx * n.x + wvy * n.y
+  const rel = vn - wallN
+  if (rel < 0) {
+    rock.vx -= (1 + REST_WALL) * rel * n.x
+    rock.vy -= (1 + REST_WALL) * rel * n.y
+    clampThrow(rock)
   }
 }
 
