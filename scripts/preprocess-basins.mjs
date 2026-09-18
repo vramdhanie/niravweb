@@ -9,11 +9,12 @@
 //   so it gzips to a fraction of its size on the wire.
 //
 // Emits, per model, into public/data/basins/:
-//   <key>.bin   Int8Array of hit (length N)
-//   <key>.json  meta + display fields
-// plus index.json listing the models. Uses the system `unzip` (only hit.npy and
-// meta.npy are extracted, never the 100 MB positions). Run locally; the build
-// only reads the committed artifacts.
+//   <key>.bin        Int8Array of hit (length N)
+//   <key>.time.bin   Uint8Array of t/t_max (optional; length N)
+//   <key>.json       meta + display fields
+// plus index.json listing the models. Uses the system `unzip` (only hit.npy,
+// meta.npy, and time.npy are extracted, never the 100 MB positions). Run
+// locally; the build only reads the committed artifacts.
 
 import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
@@ -57,6 +58,20 @@ function readInt32Array(buf) {
   return new Int32Array(ab)
 }
 
+function readFloatArray(buf) {
+  const { descr, shape, dataOffset } = parseNpy(buf)
+  const count = shape.reduce((a, b) => a * b, 1)
+  if (descr === '<f4') {
+    const ab = buf.buffer.slice(buf.byteOffset + dataOffset, buf.byteOffset + dataOffset + count * 4)
+    return new Float32Array(ab)
+  }
+  if (descr === '<f8') {
+    const out = new Float32Array(count)
+    for (let i = 0; i < count; i++) out[i] = buf.readDoubleLE(dataOffset + i * 8)
+    return out
+  }
+  throw new Error(`expected <f4 or <f8, got ${descr}`)
+}
 function readUnicodeScalar(buf) {
   const { descr, dataOffset } = parseNpy(buf)
   const m = /^<U(\d+)$/.exec(descr)
@@ -85,10 +100,30 @@ function nameFor(key) {
   return key
 }
 
-function process(fileName) {
+function extractMembers(npzPath, dest, names) {
+  try {
+    execFileSync('unzip', ['-o', '-q', npzPath, ...names, '-d', dest], { stdio: 'pipe' })
+    return
+  } catch {
+    /* unzip missing, or a listed member is absent */
+  }
+  try {
+    execFileSync('tar', ['-xf', npzPath, '-C', dest, ...names], { stdio: 'pipe' })
+    return
+  } catch {
+    /* tar also failed */
+  }
+  throw new Error(`failed to extract ${names.join(', ')} from ${path.basename(npzPath)}`)
+}
+
+function processFile(fileName) {
   const npzPath = path.join(SRC_DIR, fileName)
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'basins-'))
-  execFileSync('unzip', ['-o', '-q', npzPath, 'hit.npy', 'meta.npy', '-d', tmp])
+  try {
+    extractMembers(npzPath, tmp, ['hit.npy', 'meta.npy', 'time.npy'])
+  } catch {
+    extractMembers(npzPath, tmp, ['hit.npy', 'meta.npy'])
+  }
 
   const meta = JSON.parse(readUnicodeScalar(fs.readFileSync(path.join(tmp, 'meta.npy'))))
   const hit = readInt32Array(fs.readFileSync(path.join(tmp, 'hit.npy')))
@@ -101,6 +136,21 @@ function process(fileName) {
 
   const key = keyFor(meta, fileName)
   fs.writeFileSync(path.join(OUT_DIR, `${key}.bin`), Buffer.from(out.buffer))
+
+  let timeFile
+  const timePath = path.join(tmp, 'time.npy')
+  if (fs.existsSync(timePath)) {
+    const times = readFloatArray(fs.readFileSync(timePath))
+    const tMax = Number(meta.t_max) || 1
+    const quantized = new Uint8Array(hit.length)
+    const n = Math.min(times.length, hit.length)
+    for (let i = 0; i < n; i++) {
+      const u = Math.max(0, Math.min(1, times[i] / tMax))
+      quantized[i] = Math.round(u * 255)
+    }
+    timeFile = `${key}.time.bin`
+    fs.writeFileSync(path.join(OUT_DIR, timeFile), Buffer.from(quantized.buffer))
+  }
 
   const axes = meta.cube_axes ?? []
   const json = {
@@ -131,14 +181,27 @@ function process(fileName) {
   for (let i = 0; i < hit.length; i++) counts[hit[i]] = (counts[hit[i]] || 0) + 1
   console.log(
     `✓ ${fileName} → ${key} (${json.pointCount.toLocaleString()} pts, r=${json.resolution}, ` +
-      `${json.axisCount}D, ${json.planets.length} planets, relativistic=${json.relativistic})`,
+      `${json.axisCount}D, ${json.planets.length} planets, relativistic=${json.relativistic}` +
+      (timeFile ? ', time.bin' : '') +
+      `)`,
   )
   console.log(`  hit distribution: ${JSON.stringify(counts)}`)
-  return { key, name: json.name, file: `${key}.bin`, meta: `${key}.json`, relativistic: json.relativistic }
+  return {
+    key,
+    name: json.name,
+    file: `${key}.bin`,
+    meta: `${key}.json`,
+    ...(timeFile ? { time: timeFile } : {}),
+    relativistic: json.relativistic,
+  }
 }
 
 // --- main ------------------------------------------------------------------
 fs.mkdirSync(OUT_DIR, { recursive: true })
+if (!fs.existsSync(SRC_DIR)) {
+  console.error(`No .npz files in ${SRC_DIR}. Drop the model .npz files there.`)
+  process.exit(1)
+}
 const files = fs
   .readdirSync(SRC_DIR)
   .filter((f) => f.endsWith('.npz'))
@@ -148,7 +211,7 @@ if (files.length === 0) {
   process.exit(1)
 }
 
-const all = files.map(process)
+const all = files.map(processFile)
 // Dedupe by key (the example set ships the same model twice under different names)
 const seen = new Set()
 const models = []

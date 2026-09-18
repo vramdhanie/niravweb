@@ -4,8 +4,9 @@
 // LAST axis varying fastest: linear index n -> (i, j, k, l) where
 //   i = ⌊n / r³⌋ % r,  j = ⌊n / r²⌋ % r,  k = ⌊n / r⌋ % r,  l = n % r.
 // The first three axes are the visible cube (x, y, z); the 4th (l) is the
-// "extra"/slice dimension. Positions are derived from the index, so only the
-// per-point `hit` array (int8: planet index, or -1 for a timeout) is shipped.
+// "extra"/slice dimension. Positions are derived from the index, so we ship
+// the per-point `hit` array (int8: planet index, or -1 for a timeout) and an
+// optional `time` array (uint8: round(255 * t / t_max)).
 
 export interface Planet {
   position: number[]
@@ -36,12 +37,14 @@ export interface BasinIndexEntry {
   name: string
   file: string
   meta: string
+  time?: string
   relativistic: boolean
 }
 
 export interface BasinModel {
   meta: BasinMeta
   hit: Int8Array
+  time?: Uint8Array
 }
 
 const BASE = '/data/basins'
@@ -54,14 +57,18 @@ export async function loadIndex(): Promise<BasinIndexEntry[]> {
 }
 
 export async function loadModel(entry: BasinIndexEntry): Promise<BasinModel> {
-  const [metaRes, binRes] = await Promise.all([
+  const fetches = [
     fetch(`${BASE}/${entry.meta}`),
     fetch(`${BASE}/${entry.file}`),
-  ])
+    entry.time ? fetch(`${BASE}/${entry.time}`) : Promise.resolve(null),
+  ] as const
+  const [metaRes, binRes, timeRes] = await Promise.all(fetches)
   if (!metaRes.ok || !binRes.ok) throw new Error(`Failed to load model "${entry.key}"`)
   const meta = (await metaRes.json()) as BasinMeta
   const hit = new Int8Array(await binRes.arrayBuffer())
-  return { meta, hit }
+  let time: Uint8Array | undefined
+  if (timeRes && timeRes.ok) time = new Uint8Array(await timeRes.arrayBuffer())
+  return { meta, hit, time }
 }
 
 /** The r evenly-spaced lattice coordinate values on each axis. */
@@ -75,4 +82,15 @@ export function sampleValues(halfExtent: number, r: number): Float32Array {
 /** Planet colors as 0..1 RGB triples, indexed by hit value. */
 export function palette(meta: BasinMeta): [number, number, number][] {
   return meta.planets.map((p) => [p.color[0] / 255, p.color[1] / 255, p.color[2] / 255])
+}
+
+/** Time-to-hit ramp: 0 (fast) red → yellow → 1 (slow) green. */
+export function timeHeatColour(u: number): [number, number, number] {
+  const t = Math.max(0, Math.min(1, u))
+  if (t < 0.5) {
+    const s = t * 2
+    return [1, s, 0]
+  }
+  const s = (t - 0.5) * 2
+  return [1 - s, 1, 0]
 }
