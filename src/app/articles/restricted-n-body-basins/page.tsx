@@ -365,7 +365,7 @@ export default function ArticlePage() {
           <p>
             On the engineering side I learnt that a visualisation of high-dimensional data is only as
             honest as the cross section you chose, and that it all pretty much depends on your frame
-            of reference. You can't just choose a random cross section and expect the results to be meaningful.
+            of reference. You can&apos;t just choose a random cross section and expect the results to be meaningful.
           </p>
 
           <Figure

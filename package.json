@@ -10,7 +10,8 @@
     "build:ci": "next build",
     "start": "next start",
     "lint": "eslint",
-    "preprocess:basins": "node scripts/preprocess-basins.mjs"
+    "preprocess:basins": "node scripts/preprocess-basins.mjs",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

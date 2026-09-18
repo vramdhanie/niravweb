@@ -202,7 +202,7 @@ function fitArc(
   const r = -(qx * qx + qy * qy) / den
   if (r < 40 || r > 420) return null
   const c = { x: P.x + N.x * r, y: P.y + N.y * r }
-  let a0 = Math.atan2(P.y - c.y, P.x - c.x)
+  const a0 = Math.atan2(P.y - c.y, P.x - c.x)
   let a1 = Math.atan2(E.y - c.y, E.x - c.x)
   if (dir === 1) {
     while (a1 <= a0 + 1e-4) a1 += Math.PI * 2
@@ -301,9 +301,7 @@ function appendSmoothLanding(
   d: string,
   prev: Pt,
   prevTan: Pt | null,
-  avoid: Box,
-  _bounds: Box,
-  _pad: number
+  avoid: Box
 ): string {
   const tan = unit(prevTan ?? { x: 1, y: 0 })
   for (const edge of shuffledEdges()) {
@@ -358,7 +356,7 @@ function buildOrbitPath(start: Pt, bounds: Box, mode: PathMode, avoid: Box, star
   let prevTan: Pt | null = startTan ? unit(startTan) : null
 
   if (pivots.length === 0) {
-    return appendSmoothLanding(d, start, prevTan, avoid, bounds, pad)
+    return appendSmoothLanding(d, start, prevTan, avoid)
   }
 
   for (const pivot of pivots) {
@@ -389,7 +387,7 @@ function buildOrbitPath(start: Pt, bounds: Box, mode: PathMode, avoid: Box, star
     prevTan = orbitTangent(pivot.a1, pivot.dir)
   }
 
-  return appendSmoothLanding(d, prev, prevTan, avoid, bounds, pad)
+  return appendSmoothLanding(d, prev, prevTan, avoid)
 }
 
 export function generateChaoticPath(opts: {

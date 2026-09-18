@@ -318,7 +318,7 @@ function bounceAabb(rock: Rock, box: AABB, r: number, dt: number, prev?: AABB) {
   const cy = clamp(rock.y, top, bottom)
   let nx = rock.x - cx
   let ny = rock.y - cy
-  let d2 = nx * nx + ny * ny
+  const d2 = nx * nx + ny * ny
 
   if (d2 < 1e-8) {
     if (moving) {

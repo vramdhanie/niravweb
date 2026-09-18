@@ -205,6 +205,9 @@ export default function AsteroidField() {
       runningRef.current = false
       endDragChrome()
     }
+    // Mount-once effect: `kick` only touches refs, so its identity is
+    // irrelevant — re-subscribing on every render would be the real bug.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
