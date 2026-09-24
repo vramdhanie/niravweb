@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.18.0'  # LTS version that supports React 19
+          node-version: '24'  # firebase-tools 15.31+ needs Node >=22
           cache: 'pnpm'  # Enable pnpm caching
 
       # Install dependencies and build
