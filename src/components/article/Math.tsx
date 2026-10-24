@@ -6,7 +6,7 @@ export function MathBlock({ tex }: { tex: string }) {
   const html = katex.renderToString(tex, { displayMode: true, throwOnError: false })
   return (
     <div
-      className="my-5 overflow-x-auto text-[var(--primary-dark)]"
+      className="my-5 text-[var(--primary-dark)]"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )

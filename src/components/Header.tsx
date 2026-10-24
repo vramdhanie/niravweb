@@ -25,17 +25,27 @@ function DrawsLogo() {
   )
 }
 
-function HomeWordmark() {
+function HomeWordmark({ stress = false }: { stress?: boolean }) {
   return (
     <div className="leading-tight text-[var(--text-on-dark)]">
       <div className="font-logo text-xl font-normal sm:text-2xl">
         {/* jerk, snap, crackle, pop = 3rd–6th derivatives of position */}
         <span className="text-[0.6em] text-[var(--basin-blue-dark)]">jerk, </span>
-        <span className="text-[var(--basin-blue)]">Snap</span>
-        {', '}
-        <span className="text-[var(--basin-green)]">Crackle</span>
-        {' and '}
-        <span className="text-[var(--basin-red)]">Pop</span>
+        {stress ? (
+          <span className="stress-wordmark">
+            Snap<span className="stress-plain">, </span>
+            Crackle<span className="stress-plain"> and </span>
+            Pop
+          </span>
+        ) : (
+          <>
+            <span className="text-[var(--basin-blue)]">Snap</span>
+            {', '}
+            <span className="text-[var(--basin-green)]">Crackle</span>
+            {' and '}
+            <span className="text-[var(--basin-red)]">Pop</span>
+          </>
+        )}
       </div>
       <div className="text-right text-base font-light text-white/55">Here is all my stuff.</div>
     </div>
@@ -45,7 +55,9 @@ function HomeWordmark() {
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
-  const isDraws = pathname?.startsWith('/draws') ?? false
+  const path = (pathname ?? '/').replace(/\/$/, '') || '/'
+  const isDraws = path.startsWith('/draws')
+  const stressWordmark = path === '/' || path === '/articles/custom-physics-engine'
 
   return (
     <nav className={`relative bg-[var(--primary-dark)] ${isDraws ? 'sm:px-8' : ''}`}>
@@ -88,7 +100,7 @@ export default function Header() {
                 style={{ background: LOGO_FADE }}
               />
               <span className="flex items-center py-4 pr-3">
-                <HomeWordmark />
+                <HomeWordmark stress={stressWordmark} />
               </span>
             </Link>
             <button
