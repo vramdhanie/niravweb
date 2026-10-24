@@ -40,6 +40,45 @@ html {
   box-sizing: inherit;
 }
 
+/* Homepage and the physics article. Scoped so the rest of the site stays light. */
+.theme-dark {
+  background-color: #111113;
+  color: #e6e6e6;
+  --primary: #d6d6d6;
+  --primary-light: #a8a8a8;
+  --primary-dark: #f4f4f4;
+  --background: #111113;
+  --foreground: #e6e6e6;
+}
+.theme-dark .katex {
+  color: var(--primary-dark);
+}
+.theme-dark figure > div {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Stress scale from the cube's blue face through the engine's von Mises bar. */
+.stress-wordmark {
+  background-image: linear-gradient(
+    90deg,
+    #6c84b3 0%,
+    #1496e0 18%,
+    #2fce4a 40%,
+    #f2e03a 58%,
+    #ff8c1a 78%,
+    #f02424 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.stress-plain {
+  background-image: none;
+  color: var(--text-on-dark);
+  -webkit-text-fill-color: var(--text-on-dark);
+}
+
 body {
   margin: 0;
   background-color: var(--background);

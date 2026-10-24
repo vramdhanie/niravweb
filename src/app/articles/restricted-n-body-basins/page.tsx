@@ -19,11 +19,11 @@ export default function ArticlePage() {
     <div className="px-4 py-10 md:py-14">
       <article className="mx-auto max-w-[760px]">
         <Link
-          href="/"
+          href="/projects/restricted-n-body-basins"
           className="inline-flex items-center gap-2 text-sm text-[var(--primary-light)] no-underline transition-colors hover:text-[var(--secondary)]"
         >
           <ArrowLeft size={16} />
-          Back home
+          Back to the project
         </Link>
 
         <header className="mt-6 mb-2">
@@ -459,11 +459,11 @@ export default function ArticlePage() {
 
         <div className="mt-12 border-t border-[color:rgba(0,0,0,0.1)] pt-6">
           <Link
-            href="/"
+            href="/projects/restricted-n-body-basins"
             className="inline-flex items-center gap-2 text-sm text-[var(--primary-light)] no-underline transition-colors hover:text-[var(--secondary)]"
           >
             <ArrowLeft size={16} />
-            Back home
+            Back to the project
           </Link>
         </div>
       </article>
