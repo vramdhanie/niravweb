@@ -248,7 +248,7 @@ export default function HeroArrow({ sectionRef, hereRef, articleRef, githubRef }
         const bounds = section.getBoundingClientRect()
         const articleBox = localRect(article, bounds)
         const githubBox = localRect(github, bounds)
-        let dt = Math.min(0.05, (now - last) / 1000)
+        const dt = Math.min(0.05, (now - last) / 1000)
         last = now
 
         if (mode === 'wait') {

@@ -71,7 +71,7 @@ export default function CustomPhysicsEngineArticle() {
 
         <div className="article-prose mt-8">
           <p>
-            I joined my college robotics club recently. We focus on robot fights. That's super cool and all, but my
+            I joined my college robotics club recently. We focus on robot fights. That&apos;s super cool and all, but my
             experience with robotics is actually quite minimal. I usually focus more on theoretical
             stuff, but when it comes to building a tangible system... yes. So alongside learning
             valuable skills like using CAD and 3D printing and PCB stuff, I want to learn the
@@ -388,8 +388,8 @@ export default function CustomPhysicsEngineArticle() {
           </p>
           <p>
             My original goal was to create a physics engine that could be used to simulate CAD model durability.
-            I have not accomplished this goal, but this is like one of those "Aim for the stars and you'll fall
-            on the tree tops" kind of situations. Atleast, I am not on the ground anymore.
+            I have not accomplished this goal, but this is like one of those &quot;Aim for the stars and you&apos;ll fall
+            on the tree tops&quot; kind of situations. Atleast, I am not on the ground anymore.
           </p>
           <Figure
             src="/images/PhysicsEngine/GIFBallLandBall.gif"
