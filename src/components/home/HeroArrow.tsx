@@ -201,7 +201,7 @@ export default function HeroArrow({ sectionRef, hereRef, articleRef, githubRef }
       setEllipse(ring)
       setBoom(null)
       if (reduce.matches) {
-        geom.current = { points: '', transform: 'translate(-9999 -9999)', stem: false }
+        geom.current = { points: '', transform: 'translate(-9999 -9999)', stem: null }
         paint(-9999, -9999, 0)
         return
       }
@@ -268,7 +268,7 @@ export default function HeroArrow({ sectionRef, hereRef, articleRef, githubRef }
         if (mode === 'fly' || mode === 'home') {
           const steps = Math.max(1, Math.ceil(dt / STEP))
           const h = dt / steps
-          for (let i = 0; i < steps && mode !== 'done'; i++) {
+          for (let i = 0; i < steps; i++) {
             if (mode === 'fly') {
               const onFloor = p.y >= bounds.height - RADIUS - 1
               const grounded = (onFloor || onTopOf(p, githubBox)) && Math.abs(v.y) < 180
