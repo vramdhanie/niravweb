@@ -37,3 +37,4 @@ jobs:
           expires: 30d
           projectId: ${{ secrets.PROJECT_ID }}
           channelId: preview
+          firebaseToolsVersion: 15.31.0 # 15.34 adds a serviceusage check our SA lacks
