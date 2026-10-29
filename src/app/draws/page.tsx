@@ -10,6 +10,17 @@ import { getAllDrawings } from '@/lib/drawings'
 export const metadata: Metadata = {
   title: { absolute: 'Nirav Draws' },
   description: 'Drawings by Nirav Ramdhanie.',
+  openGraph: {
+    title: 'Nirav Draws',
+    description: 'Drawings by Nirav Ramdhanie.',
+    images: [{ url: '/og-draws.jpg', width: 1200, height: 630, alt: 'Pencil drawing of a castle by Nirav Ramdhanie' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nirav Draws',
+    description: 'Drawings by Nirav Ramdhanie.',
+    images: ['/og-draws.jpg'],
+  },
 }
 
 export default function DrawsHomePage() {
