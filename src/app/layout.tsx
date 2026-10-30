@@ -23,24 +23,28 @@ const syne = Syne_Tactile({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://niravramdhanie.com'),
   title: {
     default: 'Snap, Crackle and Pop',
     template: '%s | Snap, Crackle and Pop',
   },
-  description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
+  description: 'Physics, mathematics and drawings by Nirav Ramdhanie — from finite-element simulation to chaotic gravitational basins and architectural sketches.',
   icons: {
     icon: '/icon.png',
   },
   openGraph: {
     type: 'website',
+    url: '/',
     title: 'Snap, Crackle and Pop',
-    description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
+    description: 'Physics, mathematics and drawings by Nirav Ramdhanie — from finite-element simulation to chaotic gravitational basins and architectural sketches.',
     siteName: 'Snap, Crackle and Pop',
+    images: [{ url: '/og.jpg', width: 1200, height: 630, alt: 'Gravitational basins of the equilateral three-body configuration' }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Snap, Crackle and Pop',
-    description: 'Physics, mathematics and drawings by Nirav Ramdhanie.',
+    description: 'Physics, mathematics and drawings by Nirav Ramdhanie — from finite-element simulation to chaotic gravitational basins and architectural sketches.',
+    images: ['/og.jpg'],
   },
 }
 
