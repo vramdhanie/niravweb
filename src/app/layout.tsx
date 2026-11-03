@@ -34,7 +34,6 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    url: '/',
     title: 'Snap, Crackle and Pop',
     description: 'Physics, mathematics and drawings by Nirav Ramdhanie — from finite-element simulation to chaotic gravitational basins and architectural sketches.',
     siteName: 'Snap, Crackle and Pop',

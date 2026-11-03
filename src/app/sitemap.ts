@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/draws/', priority: 0.9 },
     { path: '/draws/drawings/', priority: 0.8 },
     ...getAllDrawings().map((d) => ({ path: `/draws/drawings/${d.slug}/`, priority: 0.7 })),
+    { path: '/games/', priority: 0.8 },
+    { path: '/games/aperiodic-cellular-automata/', priority: 0.7 },
     { path: '/projects/restricted-n-body-basins/', priority: 0.8 },
     { path: '/articles/custom-physics-engine/', priority: 0.8 },
     { path: '/articles/restricted-n-body-basins/', priority: 0.8 },

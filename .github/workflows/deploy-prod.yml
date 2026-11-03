@@ -9,19 +9,19 @@ jobs:
   deploy_live_website:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Setup pnpm first
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: '10.15.0'  # Match your package.json packageManager
 
       # Setup Node.js with pnpm caching
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: '24'  # firebase-tools 15.31+ needs Node >=22
+          node-version: '26'  # latest LTS (firebase-tools needs >=22)
           cache: 'pnpm'  # Enable pnpm caching
 
       # Install dependencies and build
