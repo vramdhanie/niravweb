@@ -7,7 +7,7 @@ const ARROW = '#f4d020'
 const RING = 'rgb(24, 118, 158)'
 
 const RADIUS = 5
-const LAUNCH_SPEED = 1120
+const LAUNCH_SPEED = 2240
 const GRAVITY = 1300
 const RESTITUTION = 0.94
 const DRAG = 0.15

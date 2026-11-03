@@ -25,13 +25,18 @@ function DrawsLogo() {
   )
 }
 
-function HomeWordmark({ stress = false }: { stress?: boolean }) {
+type Wordmark = 'stress' | 'penrose' | 'basins'
+
+function HomeWordmark({ variant }: { variant: Wordmark }) {
+  const snap = variant === 'penrose' ? 'text-[#768288]' : 'text-[var(--basin-blue)]'
+  const crackle = variant === 'penrose' ? 'text-[#b0a276]' : 'text-[var(--basin-green)]'
+
   return (
     <div className="leading-tight text-[var(--text-on-dark)]">
       <div className="font-logo text-xl font-normal sm:text-2xl">
         {/* jerk, snap, crackle, pop = 3rd–6th derivatives of position */}
         <span className="text-[0.6em] text-[var(--basin-blue-dark)]">jerk, </span>
-        {stress ? (
+        {variant === 'stress' ? (
           <span className="stress-wordmark">
             Snap<span className="stress-plain">, </span>
             Crackle<span className="stress-plain"> and </span>
@@ -39,9 +44,9 @@ function HomeWordmark({ stress = false }: { stress?: boolean }) {
           </span>
         ) : (
           <>
-            <span className="text-[var(--basin-blue)]">Snap</span>
+            <span className={snap}>Snap</span>
             {', '}
-            <span className="text-[var(--basin-green)]">Crackle</span>
+            <span className={crackle}>Crackle</span>
             {' and '}
             <span className="text-[var(--basin-red)]">Pop</span>
           </>
@@ -57,7 +62,12 @@ export default function Header() {
   const pathname = usePathname()
   const path = (pathname ?? '/').replace(/\/$/, '') || '/'
   const isDraws = path.startsWith('/draws')
-  const stressWordmark = path === '/' || path === '/articles/custom-physics-engine'
+  const wordmark: Wordmark =
+    path === '/' || path === '/articles/custom-physics-engine'
+      ? 'stress'
+      : path === '/games' || path === '/games/aperiodic-cellular-automata'
+        ? 'penrose'
+        : 'basins'
 
   return (
     <nav className={`relative bg-[var(--primary-dark)] ${isDraws ? 'sm:px-8' : ''}`}>
@@ -100,7 +110,7 @@ export default function Header() {
                 style={{ background: LOGO_FADE }}
               />
               <span className="flex items-center py-4 pr-3">
-                <HomeWordmark stress={stressWordmark} />
+                <HomeWordmark variant={wordmark} />
               </span>
             </Link>
             <button
@@ -127,20 +137,27 @@ function NavLinks({ isOpen, onNavigate }: { isOpen: boolean; onNavigate: () => v
   return (
     <ul
       className={`m-0 list-none overflow-hidden transition-all duration-300 lg:flex lg:h-auto lg:overflow-visible ${
-        isOpen ? 'h-[112px]' : 'h-0'
+        isOpen ? 'h-[168px]' : 'h-0'
       }`}
     >
-      {links.map((item) => (
-        <li key={item.path}>
-          <Link
-            href={item.path}
-            onClick={onNavigate}
-            className="block px-5 py-4 font-bold capitalize tracking-[var(--main-spacing)] text-[var(--text-on-dark)] no-underline transition-colors hover:text-[var(--secondary)]"
-          >
-            {item.text}
-          </Link>
-        </li>
-      ))}
+      {links.map((item) => {
+        const isGames = item.path === '/games'
+        return (
+          <li key={item.path}>
+            <Link
+              href={item.path}
+              onClick={onNavigate}
+              className={`block px-5 py-4 font-bold capitalize tracking-[var(--main-spacing)] no-underline transition-colors ${
+                isGames
+                  ? 'text-[#f2c14e] hover:text-[#ffe38a]'
+                  : 'text-[var(--text-on-dark)] hover:text-[var(--secondary)]'
+              }`}
+            >
+              {item.text}
+            </Link>
+          </li>
+        )
+      })}
     </ul>
   )
 }

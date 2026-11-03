@@ -1,9 +1,15 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import links from '@/constants/links'
 import social from '@/constants/social'
 
 export default function Footer() {
+  const pathname = usePathname()
+  if ((pathname ?? '').startsWith('/games/aperiodic-cellular-automata')) return null
+
   return (
     <footer className="mt-auto bg-[var(--primary-dark)] px-8 py-8 text-center text-[var(--text-on-dark)]">
       <div>
